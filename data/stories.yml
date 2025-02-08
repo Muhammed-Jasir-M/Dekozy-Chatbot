@@ -2,29 +2,31 @@ version: "3.1"
 
 stories:
 
-- story: happy path
+- story: greet and search product
   steps:
   - intent: greet
   - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
+  - intent: search_product
+  - action: action_search_product
 
-- story: sad path 1
+- story: add product to cart and place order
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
+  - intent: add_to_cart
+  - action: action_add_to_cart
+  - intent: place_order
+  - action: action_place_order
 
-- story: sad path 2
+- story: check order status
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
-  - action: utter_goodbye
+  - intent: order_status
+  - action: action_order_status
+
+- story: faq inquiry
+  steps:
+  - intent: faq
+  - action: action_faq
+
+- story: view cart
+  steps:
+  - intent: view_cart
+  - action: action_view_cart

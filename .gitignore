@@ -72,3 +72,6 @@ data/backups/
 # Miscellaneous
 .DS_Store
 **/.DS_Store
+
+# Firebase 
+aura-kart-firebase-adminsdk-448ve-f76ba9a07e.json

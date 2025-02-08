@@ -11,3 +11,43 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Respond to greeting
+  steps:
+  - intent: greet
+  - action: utter_greet
+
+- rule: Search for product
+  steps:
+    - intent: search_product
+    - action: action_search_product
+
+- rule: Add to cart
+  steps:
+    - intent: add_to_cart
+    - action: action_add_to_cart
+
+- rule: Place order
+  steps:
+    - intent: place_order
+    - action: action_place_order
+
+- rule: Check order status
+  steps:
+    - intent: order_status
+    - action: action_order_status
+
+- rule: FAQ inquiry
+  steps:
+    - intent: faq
+    - action: action_faq
+
+- rule: View cart
+  steps:
+    - intent: view_cart
+    - action: action_view_cart
+
+- rule: Fallback Rule
+  steps:
+    - intent: nlu_fallback
+    - action: action_nlu_fallback

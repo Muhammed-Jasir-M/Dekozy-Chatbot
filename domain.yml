@@ -5,30 +5,77 @@ intents:
   - goodbye
   - affirm
   - deny
-  - mood_great
-  - mood_unhappy
   - bot_challenge
+
+  - search_product
+  - add_to_cart
+  - place_order
+  - order_status
+  - faq
+  - view_cart
+  - nlu_fallback
+
+entities:
+  - product
+  - quantity
+  - order_id
+  - faq_topic
+
+slots:
+  product:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: product
+  quantity:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: quantity
+  order_id:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: order_id
+  faq_topic:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: faq_topic
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
-
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
-
-  utter_did_that_help:
-  - text: "Did that help you?"
-
-  utter_happy:
-  - text: "Great, carry on!"
+  - text: "Hello! How can I help you with your shopping today?"
 
   utter_goodbye:
-  - text: "Bye"
+  - text: "Goodbye! Have a great day!"
 
   utter_iamabot:
   - text: "I am a bot, powered by Rasa."
 
+  utter_default:
+  - text: "I'm sorry, I couldn't understand your query. Can you try rephrasing?"
+
+  utter_ask_product_query:
+    - text: "What product are you looking for?"
+
+  utter_ask_product_id:
+    - text: "Please provide the product ID."
+    - text: "I couldn't find the product with that ID. Please try again."
+
+  utter_ask_quantity:
+    - text: "Please specify the quantity."
+
+actions:
+  - action_greet
+  - action_search_product
+  - action_add_to_cart
+  - action_place_order
+  - action_order_status
+  - action_faq
+  - action_view_cart
+  - action_nlu_fallback
+
 session_config:
-  session_expiration_time: 60
+  session_expiration_time: 300
   carry_over_slots_to_new_session: true

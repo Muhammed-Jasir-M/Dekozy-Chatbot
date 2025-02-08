@@ -9,31 +9,20 @@ nlu:
     - hello there
     - good morning
     - good evening
-    - moin
-    - hey there
-    - let's go
-    - hey dude
-    - goodmorning
-    - goodevening
-    - good afternoon
 
 - intent: goodbye
   examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
+    - good bye
+    - see you later
     - bye
     - goodbye
     - have a nice day
     - see you around
     - bye bye
-    - see you later
 
 - intent: affirm
   examples: |
     - yes
-    - y
     - indeed
     - of course
     - that sounds good
@@ -42,46 +31,10 @@ nlu:
 - intent: deny
   examples: |
     - no
-    - n
     - never
     - I don't think so
     - don't like that
     - no way
-    - not really
-
-- intent: mood_great
-  examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
-
-- intent: mood_unhappy
-  examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
 
 - intent: bot_challenge
   examples: |
@@ -89,3 +42,59 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
+
+- intent: search_product
+  examples: |
+    - show me [shoes](product)
+    - find [t-shirt](product)
+    - search for [jeans](product)
+    - do you have [dress](product)
+    - I'm looking for a [laptop](product)
+    - Do you have any [smartphones](product)?
+    - I need a [headphones](product)
+    - Find me a [camera](product)
+
+- intent: add_to_cart
+  examples: |
+    - add [1](quantity) [shoes](product) to cart
+    - i want to buy [1](quantity) [t-shirt](product)
+    - put [2](quantity) [jeans](product) in my cart
+    - add [3](quantity) [dress](product) to my cart
+    - Add product [sofa](product) to my cart with quantity [2](quantity)
+    - I want to add [1](quantity) [bed](product) to my cart
+    - Please add [2](quantity) [table](product) to my cart
+
+- intent: place_order
+  examples: |
+    - Place my order
+    - I want to checkout
+    - Order now
+
+- intent: order_status
+  examples: |
+    - What's the status of order [order123](order_id)
+    - Check order [order456](order_id)
+    - Track order [order789](order_id)
+
+- intent: view_cart
+  examples: |
+    - show my cart
+    - view cart
+    - what's in my cart?
+    - see my cart items
+    - display my cart
+
+- intent: faq
+  examples: |
+    - What is your shipping policy?
+    - Tell me about returns
+    - How do I pay?
+    - I have a question about [shipping](faq_topic)
+    - Can you tell me about [returns](faq_topic)
+
+- intent: nlu_fallback
+  examples: |
+    - Sorry, I didn't understand that.
+    - Can you rephrase your query?
+    - I am not sure how to respond.
+    - I couldn't get that.
