@@ -15,6 +15,10 @@ intents:
   - view_cart
   - nlu_fallback
 
+  - add_to_wishlist
+  - view_wishlist
+  - get_recommendations
+
 entities:
   - product
   - quantity
@@ -75,6 +79,9 @@ actions:
   - action_faq
   - action_view_cart
   - action_nlu_fallback
+  - action_add_to_wishlist
+  - action_view_wishlist
+  - action_product_recommendations
 
 session_config:
   session_expiration_time: 300

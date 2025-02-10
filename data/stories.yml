@@ -30,3 +30,32 @@ stories:
   steps:
   - intent: view_cart
   - action: action_view_cart
+
+- story: Wishlist Workflow
+  steps:
+    - intent: greet
+    - action: utter_greet
+    - intent: add_to_wishlist
+    - action: action_add_to_wishlist
+    - intent: view_wishlist
+    - action: action_view_wishlist
+
+- story: Recommendations Workflow
+  steps:
+    - intent: greet
+    - action: utter_greet
+    - intent: get_recommendations
+    - action: action_product_recommendations
+
+- story: Comprehensive Shopping Journey
+  steps:
+    - intent: search_product
+    - action: action_search_product
+    - intent: add_to_wishlist
+    - action: action_add_to_wishlist
+    - intent: view_wishlist
+    - action: action_view_wishlist
+    - intent: get_recommendations
+    - action: action_product_recommendations
+    - intent: add_to_cart
+    - action: action_add_to_cart

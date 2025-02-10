@@ -51,3 +51,23 @@ rules:
   steps:
     - intent: nlu_fallback
     - action: action_nlu_fallback
+
+- rule: Add to Wishlist
+  steps:
+    - intent: add_to_wishlist
+    - action: action_add_to_wishlist
+
+- rule: View Wishlist
+  steps:
+    - intent: view_wishlist
+    - action: action_view_wishlist
+
+- rule: Remove from Wishlist
+  steps:
+    - intent: remove_from_wishlist
+    - action: action_remove_from_wishlist
+
+- rule: Get Recommendations
+  steps:
+    - intent: get_recommendations
+    - action: action_product_recommendations

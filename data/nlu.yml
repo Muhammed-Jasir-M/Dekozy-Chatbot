@@ -98,3 +98,30 @@ nlu:
     - Can you rephrase your query?
     - I am not sure how to respond.
     - I couldn't get that.
+
+- intent: add_to_wishlist
+  examples: |
+    - add [shoes](product) to wishlist
+    - save [laptop](product) to my wishlist
+    - I want to wishlist [dress](product)
+    - put [headphones](product) in my wishlist
+
+- intent: view_wishlist
+  examples: |
+    - show my wishlist
+    - what's in my wishlist?
+    - display wishlist
+    - see my saved items
+
+- intent: remove_from_wishlist
+  examples: |
+    - remove [shoes](product) from wishlist
+    - delete [laptop](product) from my wishlist
+    - take [dress](product) out of wishlist
+
+- intent: get_recommendations
+  examples: |
+    - what do you recommend?
+    - show me product recommendations
+    - give me some suggestions
+    - I need shopping ideas
