@@ -1,0 +1,24 @@
+# File: Dockerfile.actions (for the actions server)
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends build-essential && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy your custom actions code and endpoints configuration
+COPY actions/ /app/actions/
+COPY endpoints.yml /app/
+
+# Expose the port the action server runs on (Render will assign this via PORT)
+EXPOSE ${PORT}
+
+# Run the actions server (using shell form for variable expansion)
+CMD ["sh", "-c", "rasa run actions --port ${PORT}"]

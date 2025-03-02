@@ -64,7 +64,7 @@ venv.bak/
 
 # Rasa-specific files
 .rasa/
-models/
+# models/
 logs/
 rasa.db
 data/backups/

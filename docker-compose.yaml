@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  rasa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5005"
+    environment:
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+    volumes:
+      - ./:/app
+    command: rasa run --enable-api --cors "*" --port 5005
+
+  actions:
+    build:
+      context: .
+      dockerfile: Dockerfile.actions
+    ports:
+      - "5055:5055"
+    environment:
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+    volumes:
+      - ./actions:/app/actions
+    command: rasa run actions --port 5055
