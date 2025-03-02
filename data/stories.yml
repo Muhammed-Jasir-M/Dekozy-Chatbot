@@ -1,61 +1,74 @@
 version: "3.1"
 
 stories:
-
-- story: greet and search product
+- story: greet and show categories
   steps:
   - intent: greet
   - action: utter_greet
-  - intent: search_product
+  - intent: show_categories
+  - action: action_show_categories
+
+- story: greet and show featured categories
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: show_featured_categories
+  - action: action_show_featured_categories
+
+- story: greet and show brands
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: show_brands
+  - action: action_show_brands
+
+- story: greet and show featured brands
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: show_featured_brands
+  - action: action_show_featured_brands
+
+- story: greet and show products
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: show_products
+  - action: action_show_products
+
+- story: greet and show featured products
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: show_featured_products
+  - action: action_show_featured_products
+
+- story: search for product
+  steps:
+  - intent: product_search
   - action: action_search_product
 
-- story: add product to cart and place order
+- story: products by category
   steps:
-  - intent: add_to_cart
-  - action: action_add_to_cart
-  - intent: place_order
-  - action: action_place_order
+  - intent: product_by_category
+  - action: action_show_products_by_category
 
-- story: check order status
+- story: products by brand
   steps:
-  - intent: order_status
-  - action: action_order_status
+  - intent: product_by_brand
+  - action: action_show_products_by_brand
 
-- story: faq inquiry
+- story: goodbye
   steps:
-  - intent: faq
-  - action: action_faq
+  - intent: goodbye
+  - action: utter_goodbye
 
-- story: view cart
+- story: thank
   steps:
-  - intent: view_cart
-  - action: action_view_cart
+  - intent: thank
+  - action: utter_welcome
 
-- story: Wishlist Workflow
+- story: bot challenge
   steps:
-    - intent: greet
-    - action: utter_greet
-    - intent: add_to_wishlist
-    - action: action_add_to_wishlist
-    - intent: view_wishlist
-    - action: action_view_wishlist
-
-- story: Recommendations Workflow
-  steps:
-    - intent: greet
-    - action: utter_greet
-    - intent: get_recommendations
-    - action: action_product_recommendations
-
-- story: Comprehensive Shopping Journey
-  steps:
-    - intent: search_product
-    - action: action_search_product
-    - intent: add_to_wishlist
-    - action: action_add_to_wishlist
-    - intent: view_wishlist
-    - action: action_view_wishlist
-    - intent: get_recommendations
-    - action: action_product_recommendations
-    - intent: add_to_cart
-    - action: action_add_to_cart
+  - intent: bot_challenge
+  - action: utter_iamabot

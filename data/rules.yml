@@ -1,7 +1,6 @@
 version: "3.1"
 
 rules:
-
 - rule: Say goodbye anytime the user says goodbye
   steps:
   - intent: goodbye
@@ -12,62 +11,52 @@ rules:
   - intent: bot_challenge
   - action: utter_iamabot
 
-- rule: Respond to greeting
+- rule: Respond to thanks
   steps:
-  - intent: greet
-  - action: utter_greet
+  - intent: thank
+  - action: utter_welcome
 
-- rule: Search for product
+- rule: Show categories whenever user asks
   steps:
-    - intent: search_product
-    - action: action_search_product
+  - intent: show_categories
+  - action: action_show_categories
 
-- rule: Add to cart
+- rule: Show featured categories whenever user asks
   steps:
-    - intent: add_to_cart
-    - action: action_add_to_cart
+  - intent: show_featured_categories
+  - action: action_show_featured_categories
 
-- rule: Place order
+- rule: Show brands whenever user asks
   steps:
-    - intent: place_order
-    - action: action_place_order
+  - intent: show_brands
+  - action: action_show_brands
 
-- rule: Check order status
+- rule: Show featured brands whenever user asks
   steps:
-    - intent: order_status
-    - action: action_order_status
+  - intent: show_featured_brands
+  - action: action_show_featured_brands
 
-- rule: FAQ inquiry
+- rule: Show products whenever user asks
   steps:
-    - intent: faq
-    - action: action_faq
+  - intent: show_products
+  - action: action_show_products
 
-- rule: View cart
+- rule: Show featured products whenever user asks
   steps:
-    - intent: view_cart
-    - action: action_view_cart
+  - intent: show_featured_products
+  - action: action_show_featured_products
 
-- rule: Fallback Rule
+- rule: Search for products by name
   steps:
-    - intent: nlu_fallback
-    - action: action_nlu_fallback
+  - intent: product_search
+  - action: action_search_product
 
-- rule: Add to Wishlist
+- rule: Show products by category
   steps:
-    - intent: add_to_wishlist
-    - action: action_add_to_wishlist
+  - intent: product_by_category
+  - action: action_show_products_by_category
 
-- rule: View Wishlist
+- rule: Show products by brand
   steps:
-    - intent: view_wishlist
-    - action: action_view_wishlist
-
-- rule: Remove from Wishlist
-  steps:
-    - intent: remove_from_wishlist
-    - action: action_remove_from_wishlist
-
-- rule: Get Recommendations
-  steps:
-    - intent: get_recommendations
-    - action: action_product_recommendations
+  - intent: product_by_brand
+  - action: action_show_products_by_brand

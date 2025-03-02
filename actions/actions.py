@@ -1,677 +1,434 @@
-from datetime import datetime  # For handling dates and times
-import logging  # For logging errors and info messages
-import random  # For generating random order ID suffixes
-import string  # For generating random order ID suffixes
-from typing import Any, Text, Dict, List, Tuple  # For type annotations
+import os
+import json
+import logging
+from typing import Any, Text, Dict, List
 
-from rasa_sdk import Action, Tracker  # Base class for custom Rasa actions and tracker for conversation state
-from rasa_sdk.executor import CollectingDispatcher  # For sending messages back to the user
+from rasa_sdk import Action, Tracker
+from rasa_sdk.executor import CollectingDispatcher
 
-import firebase_admin  # Firebase admin SDK for connecting to Firebase
-from firebase_admin import credentials, firestore  # For credential management and Firestore database interactions
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 ########################## Initialize Firebase ##########################
 
-try:
-    # Load Firebase credentials from the JSON file and initialize the Firebase app
-    cred = credentials.Certificate("./aura-kart-firebase-adminsdk-448ve-f76ba9a07e.json")
-    firebase_admin.initialize_app(cred)
-    db = firestore.client()  # Create a Firestore client instance
-    logging.info("Firebase initialized successfully")
-except Exception as e:
-    # Log any errors encountered during Firebase initialization
-    logging.error(f"Firebase initialization error: {e}")
+def initialize_firebase():
+    """Initialize Firebase with either environment variable or local credentials file."""
+    try:
+        if not firebase_admin._apps:
+            # First, try to use environment variable (for Render deployment)
+            firebase_creds_json = os.environ.get('FIREBASE_CREDENTIALS')
+            if firebase_creds_json:
+                # Parse the JSON string from environment variable
+                cred_dict = json.loads(firebase_creds_json)
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred)
+                logging.info("Firebase initialized successfully from environment variable")
+            else:
+                # Fallback to local file for development
+                cred_path = os.environ.get('FIREBASE_CREDENTIALS_PATH', './aura-kart-firebase-adminsdk-448ve-f76ba9a07e.json')
+                cred = credentials.Certificate(cred_path)
+                firebase_admin.initialize_app(cred)
+                logging.info(f"Firebase initialized successfully from local file: {cred_path}")
+        else:
+            logging.info("Firebase already initialized")
+            
+        return firestore.client()
+    except Exception as e:
+        logging.error(f"Firebase initialization error: {e}")
+        return None
 
-########################## Action Search Product ##########################
+# Initialize Firebase and get db client
+db = initialize_firebase()
+
+class ActionShowCategories(Action):
+    def name(self) -> Text:
+        return "action_show_categories"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            # Get all categories from Firestore
+            categories_ref = db.collection('Categories')
+            categories = categories_ref.get()
+            
+            if not categories:
+                dispatcher.utter_message(text="We don't have any categories at the moment.")
+                return []
+            
+            # Format response
+            category_list = []
+            for category in categories:
+                cat_data = category.to_dict()
+                category_list.append(f"• {cat_data.get('Name', 'Unnamed category')}")
+            
+            if category_list:
+                message = "Here are all our categories:\n" + "\n".join(category_list)
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text="We don't have any categories at the moment.")
+                
+        except Exception as e:
+            logging.error(f"Error fetching categories: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our categories right now.")
+            
+        return []
+
+class ActionShowFeaturedCategories(Action):
+    def name(self) -> Text:
+        return "action_show_featured_categories"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            # Get featured categories from Firestore
+            categories_ref = db.collection('Categories').where('IsFeatured', '==', True)
+            categories = categories_ref.get()
+            
+            if not categories:
+                dispatcher.utter_message(text="We don't have any featured categories at the moment.")
+                return []
+            
+            # Format response
+            category_list = []
+            for category in categories:
+                cat_data = category.to_dict()
+                category_list.append(f"• {cat_data.get('Name', 'Unnamed category')}")
+            
+            if category_list:
+                message = "Here are our featured categories:\n" + "\n".join(category_list)
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text="We don't have any featured categories at the moment.")
+                
+        except Exception as e:
+            logging.error(f"Error fetching featured categories: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our featured categories right now.")
+            
+        return []
+
+class ActionShowBrands(Action):
+    def name(self) -> Text:
+        return "action_show_brands"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            # Get all brands from Firestore
+            brands_ref = db.collection('Brands')
+            brands = brands_ref.get()
+            
+            if not brands:
+                dispatcher.utter_message(text="We don't have any brands at the moment.")
+                return []
+            
+            # Format response
+            brand_list = []
+            for brand in brands:
+                brand_data = brand.to_dict()
+                brand_list.append(f"• {brand_data.get('Name', 'Unnamed brand')}")
+            
+            if brand_list:
+                message = "Here are all our brands:\n" + "\n".join(brand_list)
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text="We don't have any brands at the moment.")
+                
+        except Exception as e:
+            logging.error(f"Error fetching brands: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our brands right now.")
+            
+        return []
+
+class ActionShowFeaturedBrands(Action):
+    def name(self) -> Text:
+        return "action_show_featured_brands"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            # Get featured brands from Firestore
+            brands_ref = db.collection('Brands').where('IsFeatured', '==', True)
+            brands = brands_ref.get()
+            
+            if not brands:
+                dispatcher.utter_message(text="We don't have any featured brands at the moment.")
+                return []
+            
+            # Format response
+            brand_list = []
+            for brand in brands:
+                brand_data = brand.to_dict()
+                brand_list.append(f"• {brand_data.get('Name', 'Unnamed brand')}")
+            
+            if brand_list:
+                message = "Here are our featured brands:\n" + "\n".join(brand_list)
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text="We don't have any featured brands at the moment.")
+                
+        except Exception as e:
+            logging.error(f"Error fetching featured brands: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our featured brands right now.")
+            
+        return []
+
+class ActionShowProducts(Action):
+    def name(self) -> Text:
+        return "action_show_products"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            # Get all products from Firestore (limit to 10 to prevent overwhelming response)
+            products_ref = db.collection('Products').limit(10)
+            products = products_ref.get()
+            
+            if not products:
+                dispatcher.utter_message(text="We don't have any products at the moment.")
+                return []
+            
+            # Format response
+            product_list = []
+            for product in products:
+                product_data = product.to_dict()
+                title = product_data.get('Title', 'Unnamed product')
+                price = product_data.get('Price', 0)
+                product_list.append(f"• {title} - ${price}")
+            
+            if product_list:
+                message = "Here are some of our products:\n" + "\n".join(product_list)
+                message += "\n\nWould you like to search for specific products by category or brand?"
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text="We don't have any products at the moment.")
+                
+        except Exception as e:
+            logging.error(f"Error fetching products: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our products right now.")
+            
+        return []
+
+class ActionShowFeaturedProducts(Action):
+    def name(self) -> Text:
+        return "action_show_featured_products"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            # Get featured products from Firestore
+            products_ref = db.collection('Products').where('IsFeatured', '==', True).limit(10)
+            products = products_ref.get()
+            
+            if not products:
+                dispatcher.utter_message(text="We don't have any featured products at the moment.")
+                return []
+            
+            # Format response
+            product_list = []
+            for product in products:
+                product_data = product.to_dict()
+                title = product_data.get('Title', 'Unnamed product')
+                price = product_data.get('Price', 0)
+                sale_price = product_data.get('SalePrice', 0)
+                
+                if sale_price > 0:
+                    product_list.append(f"• {title} - ${price} (On sale: ${sale_price})")
+                else:
+                    product_list.append(f"• {title} - ${price}")
+            
+            if product_list:
+                message = "Here are our featured products:\n" + "\n".join(product_list)
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text="We don't have any featured products at the moment.")
+                
+        except Exception as e:
+            logging.error(f"Error fetching featured products: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our featured products right now.")
+            
+        return []
 
 class ActionSearchProduct(Action):
     def name(self) -> Text:
-        # Return the name of the action to be used in the Rasa domain
         return "action_search_product"
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        
-        # Retrieve the product slot value from the user's input
-        product = tracker.get_slot("product")
-
-        # Validate if a product was provided; if not, ask the user to specify one
-        if not product:
-            dispatcher.utter_message(text="Could you please specify what product you're looking for?")
-            return []
-        
-        try: 
-            # Convert product name to lowercase for consistent querying
-            product = product.lower()
-
-            # Access the 'products' collection in Firestore
-            products_ref = db.collection('products')
-            # Query Firestore for products whose name starts with the input string
-            query = products_ref.where('name', '>=', product)\
-                            .where('name', '<=', product + '\uf8ff')\
-                            .limit(5)\
-                            .get()          
-                  
-            # If no product is found, notify the user
-            if not query:
-                dispatcher.utter_message(text=f"Sorry, I couldn't find {product} in our store.")
-                return []
-                
-            # Process each document (product) found in the query
-            products_found = []
-            for doc in query:
-                product_data = doc.to_dict()  # Convert document to dictionary
-                products_found.append(
-                    f"• {product_data.get('name', 'N/A')}:\n"
-                    f"  Price: ${product_data.get('price', 'N/A')}\n"
-                    f"  Stock: {product_data.get('stock', 'N/A')} units\n"
-                    f"  ID: {doc.id}\n"
-                )
-            
-            # Build and send the response message with product details
-            response = "Here's what I found:\n\n" + "\n".join(products_found)
-            dispatcher.utter_message(text=response)
-
-        except Exception as e:
-            # Log and notify the user if an error occurs during the search
-            logging.error(f"Error searching product: {e}")
-            dispatcher.utter_message(text="An error occurred while searching for products. Please try again later.")
-
-        return []
-    
-########################## Action Add To Cart ##########################
-
-class ActionAddToCart(Action):
-    def name(self) -> Text:
-        return "action_add_to_cart"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        
-        # Retrieve the user's ID and the product/quantity from slots
-        user_id = tracker.sender_id
-        product = tracker.get_slot("product")
-        quantity = tracker.get_slot("quantity") or 1
-
-        # Validate and convert quantity to an integer
         try:
-            quantity = int(quantity)
-        except ValueError:
-            dispatcher.utter_message(text="Please provide a valid quantity.")
-            return []
-
-        # Validate if product input is provided
-        if not product:
-            dispatcher.utter_message(text="Please specify the product you want to add.")
-            return []
-
-        try:
-            # Normalize the product name
-            product = product.lower()
-
-            # Check if the product exists and retrieve its data from Firestore
-            product_ref = db.collection('products').where('name', '==', product).limit(1).get()
-            if not product_ref:
-                dispatcher.utter_message(text=f"Sorry, {product} is not available.")
+            # Get the product name from the entity
+            product_name = tracker.get_slot('product')
+            
+            if not product_name:
+                dispatcher.utter_message(text="I'm not sure what product you're looking for. Could you provide a product name?")
                 return []
             
-            product_data = product_ref[0].to_dict()
+            # Search for products with similar names (case-insensitive search not directly supported in Firestore)
+            # We'll get all products and filter on the client-side for the demo
+            products_ref = db.collection('Products')
+            products = products_ref.get()
             
-            # Check if enough stock is available
-            if product_data.get('stock', 0) < quantity:
-                dispatcher.utter_message(text=f"Sorry, only {product_data.get('stock')} units available.")
-                return []
-
-            # Retrieve or create the user's cart from Firestore
-            cart_ref = db.collection('carts').document(user_id)
-            cart_doc = cart_ref.get()
-            if cart_doc.exists: 
-                cart_data = cart_doc.to_dict()
-                cart = cart_data.get("items", [])
-            else:
-                cart = []
-
-            # Check if the product is already in the cart
-            product_in_cart = next((item for item in cart if item["product"] == product), None)
-            price = product_data.get('price', 0)
- 
-            if product_in_cart:
-                # Update the quantity and total if the product is already in the cart
-                product_in_cart["quantity"] += quantity
-                product_in_cart["total"] = product_in_cart["quantity"] * price
-                response = f"Updated {product} quantity to {product_in_cart['quantity']} in your cart."
-            else:
-                # Otherwise, add the product as a new item in the cart
-                cart.append({
-                    "product": product,
-                    "quantity": quantity,
-                    "price": price,
-                    "total": quantity * price
-                })                
-                response = f"Added {quantity} {product}(s) to your cart."            
-                        
-            # Update the user's cart in Firestore
-            cart_ref.set({'items': cart}, merge=True)
-            dispatcher.utter_message(text=response)
+            # Filter products that contain the search term (case-insensitive)
+            search_term = product_name.lower()
+            matching_products = []
             
-        except Exception as e:
-            # Log and notify the user if an error occurs while adding to the cart
-            logging.error(f"Error adding to cart: {e}")
-            dispatcher.utter_message(text="An error occurred while adding the product to your cart.")
-
-        return []
-
-########################## Action Place Order ##########################
-
-class ActionPlaceOrder(Action):
-    def name(self) -> Text:
-        return "action_place_order"
-    
-    def generate_order_id(self) -> str:
-        """Generate a unique order ID using the current timestamp and a random suffix."""
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        random_suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
-        return f"ORD-{timestamp}-{random_suffix}"
-
-    def validate_stock(self, items: List[Dict]) -> Tuple[bool, List[str]]:
-        """Validate that there is sufficient stock for all items in the cart."""
-        out_of_stock = []
-        for item in items:
-            product_ref = db.collection('products').where('name', '==', item['product']).limit(1).get()
-            if product_ref:
-                product = product_ref[0].to_dict()
-                if product.get('stock', 0) < item['quantity']:
-                    out_of_stock.append(item['product'])
-        # Return a tuple: (True if all items are in stock, list of items with insufficient stock)
-        return len(out_of_stock) == 0, out_of_stock
-    
-    async def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    
-        # Retrieve the user's ID from the conversation tracker
-        user_id = tracker.sender_id
-
-        try:
-            # Retrieve the user's cart from Firestore
-            cart_ref = db.collection("carts").document(user_id)
-            cart_doc = cart_ref.get()
-
-            # Check if the cart exists and is not empty
-            if not cart_doc.exists:
-                dispatcher.utter_message(text="Your cart is empty.")
-                return []
-    
-            cart_data = cart_doc.to_dict()
-            items = cart_data.get("items", [])
-            if not items:
-                dispatcher.utter_message(text="Your cart is empty.")
-                return []
-            
-            # Validate stock availability for all items in the cart
-            stock_valid, out_of_stock = self.validate_stock(items)
-            if not stock_valid:
-                message = "Cannot place order. These items have insufficient stock:\n"
-                message += "\n".join([f"• {item}" for item in out_of_stock])
-                dispatcher.utter_message(text=message)
-                return []
-            
-            # Create order details including a unique order ID and total amount
-            order_id = self.generate_order_id()
-            order_data = {
-                "order_id": order_id,
-                "user_id": user_id,
-                "items": items,
-                "status": "placed",
-                "timestamp": firestore.SERVER_TIMESTAMP,
-                "total_amount": sum(item['price'] * item['quantity'] for item in items)
-            }
-
-            # Begin a Firestore transaction to ensure atomic updates
-            transaction = db.transaction()
-
-            @firestore.transactional
-            def place_order_transaction(transaction, order_id):
-                # Loop through each item to update the stock in the products collection
-                for item in items:
-                    product_ref = db.collection('products').where('name', '==', item['product']).limit(1).get()[0].reference
-                    product_data = product_ref.get().to_dict()
-                    new_stock = product_data['stock'] - item['quantity']
-                    transaction.update(product_ref, {'stock': new_stock})
-
-                # Create a new order document in the orders collection
-                order_ref = db.collection("orders").document(order_id)
-                transaction.set(order_ref, order_data)
-
-                # Delete the cart document as the order has been placed
-                transaction.delete(cart_ref)
-
-            try:
-                # Execute the transaction
-                place_order_transaction(transaction, order_id)                
-                # Send order confirmation to the user with details
-                message = (
-                    f"✅ Order placed successfully!\n\n"
-                    f"Order ID: {order_id}\n"
-                    f"Total Amount: ${order_data['total_amount']:.2f}\n\n"
-                    f"You will receive a confirmation email shortly.\n"
-                    f"Track your order status using the order ID."
-                )
-                dispatcher.utter_message(text=message)
-
-            except Exception as e:
-                # Log and notify the user if the transaction fails
-                logging.error(f"Transaction failed: {e}")
-                dispatcher.utter_message(text="Failed to place order. Please try again.")
- 
-        except Exception as e:
-            # Log and notify the user if an error occurs while placing the order
-            logging.error(f"Error placing order: {e}")
-            dispatcher.utter_message(text="An error occurred while placing your order. Please try again later.")
-
-        return []
-    
-########################## Action Order Status ##########################
-
-class ActionOrderStatus(Action):
-    def name(self) -> Text:
-        return "action_order_status"
-
-    def get_status_emoji(self, status: str) -> str:
-        """Return an emoji that corresponds to the order status."""
-        status_emojis = {
-            "placed": "📦",
-            "confirmed": "✅",
-            "processing": "⚙️",
-            "shipped": "🚚",
-            "delivered": "🏠",
-            "cancelled": "❌"
-        }
-        return status_emojis.get(status.lower(), "❓")
-    
-    def format_order_details(self, order_data: Dict) -> str:
-        """Format the order details into a readable message."""
-        status = order_data.get("status", "unknown")
-        emoji = self.get_status_emoji(status)
-        
-        # Build the message with order details and status emoji
-        message = (
-            f"Order Status {emoji}\n\n"
-            f"Order ID: {order_data.get('order_id')}\n"
-            f"Status: {status.title()}\n"
-            f"Placed on: {order_data.get('timestamp').strftime('%Y-%m-%d %H:%M')}\n"
-            f"Total Amount: ${order_data.get('total_amount', 0):.2f}\n\n"
-            "Items:\n"
-        )
-
-        # Append details for each item in the order
-        for item in order_data.get('items', []):
-            message += (
-                f"• {item['product'].title()}\n"
-                f"  Quantity: {item['quantity']}\n"
-                f"  Price: ${item['price']:.2f}\n"
-            )
-
-        # If the order is shipped, include tracking information
-        if status == "shipped":
-            message += f"\nTracking Number: {order_data.get('tracking_number', 'N/A')}"
-
-        return message
-        
-    async def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        
-        # Retrieve the order ID from the user's input
-        order_id = tracker.get_slot("order_id")
-
-        # Validate if an order ID was provided
-        if not order_id:
-            dispatcher.utter_message(text="Please provide your order ID.")
-            return []
-        
-        try:
-            # Retrieve the order document from Firestore using the provided order ID
-            order_ref = db.collection("orders").document(order_id)
-            order_doc = order_ref.get()
-
-            # If the order exists, format and send its details; otherwise, notify the user
-            if order_doc.exists:
-                order_data = order_doc.to_dict()
-                message = self.format_order_details(order_data)
-                dispatcher.utter_message(text=message)
-            else:
-                dispatcher.utter_message(text="I couldn't find any order with that ID.")
-
-        except Exception as e:
-            # Log and notify the user if an error occurs while retrieving order status
-            logging.error("Error checking order status: {e}")
-            dispatcher.utter_message(text="An error occurred while retrieving order status. Please try again later.")
-
-        return []
-    
-########################## Action FAQ ##########################
-
-class ActionFAQ(Action):
-    def name(self) -> Text:
-        return "action_faq"
-    
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        
-        # Retrieve the FAQ topic provided by the user
-        faq_topic = tracker.get_slot("faq_topic")
-
-        # Predefined FAQ responses for common topics
-        faq_responses = {
-            "shipping": "Our standard shipping takes 3-5 business days.",
-            "returns": "You can return your product within 30 days of purchase.",
-            "payment": "We accept credit cards, debit cards, and PayPal."
-        } 
-        
-        # If a recognized FAQ topic is provided, return its answer; otherwise, ask for clarification
-        if faq_topic and faq_topic.lower() in faq_responses:
-            response = faq_responses[faq_topic.lower()]
-        else:
-            response = "Could you please specify your query? For example, you can ask about shipping, returns, or payment."
-
-        dispatcher.utter_message(text=response)
-        return []
-    
-########################## Action Default NLU Fallback ##########################
-
-class ActionDefaultFallback(Action):
-    def name(self) -> Text:
-        return "action_nlu_fallback"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        
-        # Respond with a generic fallback message if the user's intent cannot be determined
-        dispatcher.utter_message(
-            text="I'm sorry, I didn't understand that. Can you try rephrasing your question?"
-        )
-        return []
-    
-########################## Action View Cart ##########################
-
-class ActionViewCart(Action):
-    def name(self) -> Text:
-        return "action_view_cart"
-
-    def check_stock_status(self, items: List[Dict]) -> List[Dict]:
-        """Check the current stock status for each item in the cart."""
-        for item in items:
-            product_ref = db.collection('products').where('name', '==', item['product']).limit(1).get()
-            if product_ref:
-                product = product_ref[0].to_dict()
-                # Mark item as in stock if available stock meets or exceeds desired quantity
-                item['in_stock'] = product.get('stock', 0) >= item['quantity']
-                item['available_stock'] = product.get('stock', 0)
-        return items
-
-    def calculate_cart_total(self, items: List[Dict]) -> float:
-        """Calculate the total price for all items in the cart."""
-        return sum(item.get('price', 0) * item.get('quantity', 0) for item in items)
-
-    async def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    
-        # Retrieve the user's ID from the conversation tracker
-        user_id = tracker.sender_id
-
-        try:
-            # Fetch the user's cart document from Firestore
-            cart_ref = db.collection("carts").document(user_id)
-            cart_doc = cart_ref.get()
-
-            # If the cart does not exist or is empty, inform the user
-            if not cart_doc.exists:
-                dispatcher.utter_message(text="Your cart is empty.")
-                return []
-
-            cart_data = cart_doc.to_dict()
-            items = cart_data.get("items", [])
-            if not items:
-                dispatcher.utter_message(text="Your cart is empty.")
-                return []
-            
-            # Check the stock status of each item in the cart
-            items = self.check_stock_status(items)
-
-            # Group items by product name to consolidate quantities and totals
-            grouped_items = {}
-            for item in items:
-                product = item['product']
-                if product in grouped_items:
-                    grouped_items[product]['quantity'] += item['quantity']
-                    grouped_items[product]['total'] += item['price'] * item['quantity']
-                else:
-                    grouped_items[product] = {
-                        'quantity': item['quantity'],
-                        'price': item['price'],
-                        'total': item['price'] * item['quantity'],
-                        'in_stock': item.get('in_stock', True),
-                        'available_stock': item.get('available_stock', 0)
+            for product in products:
+                product_data = product.to_dict()
+                title = product_data.get('Title', '')
+                if search_term in title.lower():
+                    price = product_data.get('Price', 0)
+                    sale_price = product_data.get('SalePrice', 0)
+                    stock = product_data.get('Stock', 0)
+                    
+                    product_info = {
+                        'id': product.id,
+                        'title': title,
+                        'price': price,
+                        'sale_price': sale_price,
+                        'stock': stock
                     }
-
-            # Build the cart summary message with details for each product
-            message = "🛒 Your Cart:\n\n"
-            for product, details in grouped_items.items():
-                # Determine the stock status and corresponding emoji
-                if details['in_stock']:
-                    stock_status = "✅ In Stock"
-                else:
-                    stock_status = f"⚠️ Only {details['available_stock']} available"
-
-                message += (
-                    f"• {product.title()}\n"           
-                    f"  Quantity: {details['quantity']}\n"    
-                    f"  Price: ${details['price']:.2f} each\n"  
-                    f"  Subtotal: ${details['total']:.2f}\n"    
-                    f"  Status: {stock_status}\n\n"           
-                )
-
-            # Calculate and append the overall total for the cart
-            cart_total = self.calculate_cart_total(items)
-            message += f"\nTotal: ${cart_total:.2f}"
-
-            # Warn the user if any items have insufficient stock
-            out_of_stock = [p for p, d in grouped_items.items() if not d['in_stock']]
-            if out_of_stock:
-                message += "\n\n⚠️ Some items have insufficient stock. Please update quantities."
-
-            dispatcher.utter_message(text=message)
-
-        except Exception as e:
-            # Log and notify the user if an error occurs while retrieving the cart
-            logging.error(f"Error retrieving cart: {e}")
-            dispatcher.utter_message(text="An error occurred while retrieving your cart.")
-
-        return []
-
-########################## Action Add To Wishlist ##########################
-
-class ActionAddToWishlist(Action):
-    def name(self) -> Text:
-        return "action_add_to_wishlist"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        # Retrieve user ID and product slot value
-        user_id = tracker.sender_id
-        product = tracker.get_slot("product")
-
-        # Validate if a product is specified
-        if not product:
-            dispatcher.utter_message(text="Please specify a product to add to wishlist.")
-            return []
-
-        try:
-            # Check if the product exists in Firestore
-            product_ref = db.collection('products').where('name', '==', product.lower()).limit(1).get()
-            if not product_ref:
-                dispatcher.utter_message(text=f"Product {product} not found.")
-                return []
-
-            # Add the product to the user's wishlist using an array union operation
-            wishlist_ref = db.collection('wishlists').document(user_id)
-            wishlist_ref.set({
-                'items': firestore.ArrayUnion([{
-                    'product': product.lower(),
-                    'added_at': firestore.SERVER_TIMESTAMP
-                }])
-            }, merge=True)
-
-            dispatcher.utter_message(text=f"{product} added to your wishlist!")
-
-        except Exception as e:
-            # Log and notify the user if an error occurs while adding to the wishlist
-            logging.error(f"Wishlist error: {e}")
-            dispatcher.utter_message(text="Error adding to wishlist.")
-
-        return []
-
-########################## Action View Wishlist ##########################
-
-class ActionViewWishlist(Action):
-    def name(self) -> Text:
-        return "action_view_wishlist"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        # Retrieve the user ID from the tracker
-        user_id = tracker.sender_id
-
-        try:
-            # Get the user's wishlist document from Firestore
-            wishlist_ref = db.collection('wishlists').document(user_id)
-            wishlist_doc = wishlist_ref.get()
-
-            # If the wishlist is empty or doesn't exist, inform the user
-            if not wishlist_doc.exists or not wishlist_doc.to_dict().get('items'):
-                dispatcher.utter_message(text="Your wishlist is empty.")
-                return []
-
-            wishlist_items = wishlist_doc.to_dict().get('items', [])
-            message = "🌟 Your Wishlist:\n\n"
+                    matching_products.append(product_info)
             
-            # Loop through each item in the wishlist and fetch product details
-            for item in wishlist_items:
-                product_ref = db.collection('products').where('name', '==', item['product']).limit(1).get()
-                if product_ref:
-                    product_data = product_ref[0].to_dict()
-                    message += (
-                        f"• {item['product'].title()}\n"
-                        f"  Price: ${product_data.get('price', 'N/A')}\n"
-                        f"  Stock: {product_data.get('stock', 0)} units\n\n"
-                    )
-
-            dispatcher.utter_message(text=message)
-
+            if matching_products:
+                message = f"Here are products matching '{product_name}':\n"
+                for product in matching_products[:5]:  # Limit to 5 results
+                    if product['sale_price'] > 0:
+                        message += f"• {product['title']} - ${product['price']} (On sale: ${product['sale_price']}) - {product['stock']} in stock\n"
+                    else:
+                        message += f"• {product['title']} - ${product['price']} - {product['stock']} in stock\n"
+                
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text=f"I couldn't find any products matching '{product_name}'. Would you like to try a different search?")
+                
         except Exception as e:
-            # Log and notify the user if an error occurs while retrieving the wishlist
-            logging.error(f"Wishlist view error: {e}")
-            dispatcher.utter_message(text="Error retrieving wishlist.")
-
+            logging.error(f"Error searching for product: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble searching for products right now.")
+            
         return []
 
-########################## Action Product Recommendations ##########################
-
-class ActionProductRecommendations(Action):
+class ActionShowProductsByCategory(Action):
     def name(self) -> Text:
-        return "action_product_recommendations"
-
-    def get_recommendations(self, recent_purchases):
-        """Generate product recommendations based on the categories of recent purchases."""
-        recommendations = []
-        for purchase in recent_purchases:
-            # Query for up to 3 products in the same category as the purchased item
-            category_ref = db.collection('products').where('category', '==', purchase['category']).limit(3).get()
-            recommendations.extend([doc.to_dict() for doc in category_ref])
-        return recommendations[:5]  # Limit the recommendations to 5 items
+        return "action_show_products_by_category"
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        # Retrieve the user ID
-        user_id = tracker.sender_id
-
         try:
-            # Fetch recent orders for the user from Firestore, ordered by timestamp
-            orders_ref = db.collection('orders').where('user_id', '==', user_id).order_by('timestamp', direction=firestore.Query.DESCENDING).limit(3)
-            recent_orders = orders_ref.get()
-
-            recent_purchases = []
-            # Extract purchased items from recent orders
-            for order in recent_orders:
-                order_data = order.to_dict()
-                recent_purchases.extend(order_data.get('items', []))
-
-            # Generate recommendations based on recent purchases
-            recommendations = self.get_recommendations(recent_purchases)
-
-            if not recommendations:
-                dispatcher.utter_message(text="No personalized recommendations at the moment.")
+            # Get the category name from the entity
+            category_name = tracker.get_slot('category')
+            
+            if not category_name:
+                dispatcher.utter_message(text="I'm not sure which category you're interested in. Could you specify a category?")
                 return []
-
-            # Build the recommendations message
-            message = "🎁 Recommended for You:\n\n"
-            for product in recommendations:
-                message += (
-                    f"• {product.get('name', 'N/A').title()}\n"
-                    f"  Price: ${product.get('price', 'N/A')}\n"
-                    f"  Category: {product.get('category', 'N/A')}\n\n"
-                )
-
-            dispatcher.utter_message(text=message)
-
+            
+            # First, find the category ID by name
+            categories_ref = db.collection('Categories')
+            categories = categories_ref.get()
+            
+            category_id = None
+            for category in categories:
+                category_data = category.to_dict()
+                if category_name.lower() in category_data.get('Name', '').lower():
+                    category_id = category.id
+                    break
+            
+            if not category_id:
+                dispatcher.utter_message(text=f"I couldn't find a category named '{category_name}'. Would you like to see all our categories?")
+                return []
+            
+            # Now get products in this category
+            products_ref = db.collection('Products').where('CategoryId', '==', category_id).limit(10)
+            products = products_ref.get()
+            
+            if not products:
+                dispatcher.utter_message(text=f"We don't have any products in the '{category_name}' category at the moment.")
+                return []
+            
+            # Format response
+            product_list = []
+            for product in products:
+                product_data = product.to_dict()
+                title = product_data.get('Title', 'Unnamed product')
+                price = product_data.get('Price', 0)
+                sale_price = product_data.get('SalePrice', 0)
+                
+                if sale_price > 0:
+                    product_list.append(f"• {title} - ${price} (On sale: ${sale_price})")
+                else:
+                    product_list.append(f"• {title} - ${price}")
+            
+            if product_list:
+                message = f"Here are products in the '{category_name}' category:\n" + "\n".join(product_list)
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text=f"We don't have any products in the '{category_name}' category at the moment.")
+                
         except Exception as e:
-            # Log and notify the user if an error occurs while generating recommendations
-            logging.error(f"Recommendation error: {e}")
-            dispatcher.utter_message(text="Error generating recommendations.")
-
+            logging.error(f"Error fetching products by category: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving products by category right now.")
+            
         return []
-    
-########################## Action Remove From Wishlist ##########################
 
-class ActionRemoveFromWishlist(Action):
+class ActionShowProductsByBrand(Action):
     def name(self) -> Text:
-        return "action_remove_from_wishlist"
+        return "action_show_products_by_brand"
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        # Retrieve user ID and product from the tracker
-        user_id = tracker.sender_id
-        product = tracker.get_slot("product")
-
-        # Validate if a product is specified for removal
-        if not product:
-            dispatcher.utter_message(text="Please specify a product to remove from wishlist.")
-            return []
-
         try:
-            # Remove the specified product from the wishlist using an array removal operation
-            wishlist_ref = db.collection('wishlists').document(user_id)
-            wishlist_ref.update({
-                'items': firestore.ArrayRemove([{
-                    'product': product.lower()
-                }])
-            })
-
-            dispatcher.utter_message(text=f"{product} removed from your wishlist.")
-
+            # Get the brand name from the entity
+            brand_name = tracker.get_slot('brand')
+            
+            if not brand_name:
+                dispatcher.utter_message(text="I'm not sure which brand you're interested in. Could you specify a brand?")
+                return []
+            
+            # Get products for this brand
+            # This requires a bit of a different approach since brand is a nested object
+            # We'll need to get all products and filter client-side
+            products_ref = db.collection('Products')
+            products = products_ref.get()
+            
+            # Filter products with matching brand
+            matching_products = []
+            for product in products:
+                product_data = product.to_dict()
+                brand_data = product_data.get('Brand', {})
+                
+                if brand_data and brand_name.lower() in brand_data.get('Name', '').lower():
+                    title = product_data.get('Title', 'Unnamed product')
+                    price = product_data.get('Price', 0)
+                    sale_price = product_data.get('SalePrice', 0)
+                    
+                    product_info = {
+                        'title': title,
+                        'price': price,
+                        'sale_price': sale_price
+                    }
+                    matching_products.append(product_info)
+            
+            if matching_products:
+                message = f"Here are products from '{brand_name}':\n"
+                for product in matching_products[:10]:  # Limit to 10 results
+                    if product['sale_price'] > 0:
+                        message += f"• {product['title']} - ${product['price']} (On sale: ${product['sale_price']})\n"
+                    else:
+                        message += f"• {product['title']} - ${product['price']}\n"
+                
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text=f"I couldn't find any products from the brand '{brand_name}'. Would you like to see all our brands?")
+                
         except Exception as e:
-            # Log and notify the user if an error occurs while removing the product from the wishlist
-            logging.error(f"Wishlist removal error: {e}")
-            dispatcher.utter_message(text="Error removing from wishlist.")
-
+            logging.error(f"Error fetching products by brand: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving products by brand right now.")
+            
         return []

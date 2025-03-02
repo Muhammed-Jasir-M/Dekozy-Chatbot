@@ -5,84 +5,72 @@ intents:
   - goodbye
   - affirm
   - deny
+  - thank
   - bot_challenge
-
-  - search_product
-  - add_to_cart
-  - place_order
-  - order_status
-  - faq
-  - view_cart
-  - nlu_fallback
-
-  - add_to_wishlist
-  - view_wishlist
-  - get_recommendations
+  - show_categories
+  - show_featured_categories
+  - show_brands
+  - show_featured_brands
+  - show_products
+  - show_featured_products
+  - product_search
+  - product_by_category
+  - product_by_brand
 
 entities:
   - product
-  - quantity
-  - order_id
-  - faq_topic
+  - category
+  - brand
 
 slots:
   product:
     type: text
+    influence_conversation: true
     mappings:
     - type: from_entity
       entity: product
-  quantity:
+  
+  category:
     type: text
+    influence_conversation: true
     mappings:
     - type: from_entity
-      entity: quantity
-  order_id:
+      entity: category
+  
+  brand:
     type: text
+    influence_conversation: true
     mappings:
     - type: from_entity
-      entity: order_id
-  faq_topic:
-    type: text
-    mappings:
-    - type: from_entity
-      entity: faq_topic
+      entity: brand
 
 responses:
   utter_greet:
-  - text: "Hello! How can I help you with your shopping today?"
-
+  - text: "Hello! Welcome to Aura Kart. How can I help you today?"
+  
   utter_goodbye:
-  - text: "Goodbye! Have a great day!"
-
+  - text: "Goodbye! Have a nice day!"
+  
   utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
-
-  utter_default:
-  - text: "I'm sorry, I couldn't understand your query. Can you try rephrasing?"
-
-  utter_ask_product_query:
-    - text: "What product are you looking for?"
-
-  utter_ask_product_id:
-    - text: "Please provide the product ID."
-    - text: "I couldn't find the product with that ID. Please try again."
-
-  utter_ask_quantity:
-    - text: "Please specify the quantity."
+  - text: "I am a bot, powered by Aura Kart."
+  
+  utter_welcome:
+  - text: "You're welcome! Is there anything else I can help you with?"
+  
+  utter_fallback:
+  - text: "I'm sorry, I didn't understand that. Can you please rephrase?"
 
 actions:
-  - action_greet
+  - action_show_categories
+  - action_show_featured_categories
+  - action_show_brands
+  - action_show_featured_brands
+  - action_show_products
+  - action_show_featured_products
   - action_search_product
-  - action_add_to_cart
-  - action_place_order
-  - action_order_status
-  - action_faq
-  - action_view_cart
-  - action_nlu_fallback
-  - action_add_to_wishlist
-  - action_view_wishlist
-  - action_product_recommendations
+  - action_show_products_by_category
+  - action_show_products_by_brand
 
 session_config:
-  session_expiration_time: 300
+  session_expiration_time: 60
   carry_over_slots_to_new_session: true

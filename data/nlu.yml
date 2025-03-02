@@ -9,32 +9,49 @@ nlu:
     - hello there
     - good morning
     - good evening
+    - hey there
+    - hi there
+    - greetings
 
 - intent: goodbye
   examples: |
-    - good bye
-    - see you later
     - bye
     - goodbye
-    - have a nice day
     - see you around
-    - bye bye
+    - see you later
+    - have a nice day
 
 - intent: affirm
   examples: |
     - yes
+    - y
     - indeed
     - of course
     - that sounds good
     - correct
+    - sure
+    - ok
+    - okay
 
 - intent: deny
   examples: |
     - no
+    - n
     - never
     - I don't think so
     - don't like that
     - no way
+    - not really
+    - nope
+
+- intent: thank
+  examples: |
+    - thanks
+    - thank you
+    - thanks a lot
+    - thank you very much
+    - appreciate it
+    - thanks for your help
 
 - intent: bot_challenge
   examples: |
@@ -43,85 +60,105 @@ nlu:
     - am I talking to a bot?
     - am I talking to a human?
 
-- intent: search_product
+- intent: show_categories
   examples: |
-    - show me [shoes](product)
+    - show me all categories
+    - what categories do you have
+    - list all product categories
+    - display categories
+    - what types of products do you sell
+    - show product categories
+    - categories please
+    - what are your categories
+    - can I see all categories
+
+- intent: show_featured_categories
+  examples: |
+    - show featured categories
+    - what are your featured categories
+    - display featured categories
+    - what categories are featured
+    - show me your top categories
+    - popular categories
+    - main categories
+
+- intent: show_brands
+  examples: |
+    - show me all brands
+    - what brands do you have
+    - list all product brands
+    - display brands
+    - what brands do you sell
+    - show product brands
+    - brands please
+    - what are your brands
+    - can I see all brands
+
+- intent: show_featured_brands
+  examples: |
+    - show featured brands
+    - what are your featured brands
+    - display featured brands
+    - what brands are featured
+    - show me your top brands
+    - popular brands
+    - main brands
+
+- intent: show_products
+  examples: |
+    - show me all products
+    - what products do you have
+    - list all products
+    - display products
+    - what do you sell
+    - show items for sale
+    - products please
+    - what are your products
+    - can I see all products
+
+- intent: show_featured_products
+  examples: |
+    - show featured products
+    - what are your featured products
+    - display featured products
+    - what products are featured
+    - show me your top products
+    - popular products
+    - best selling products
+    - trending products
+
+- intent: product_search
+  examples: |
+    - search for [iPhone](product)
+    - find [samsung](product) products
+    - do you have [macbook](product)
+    - looking for [airpods](product)
+    - search [shoes](product)
     - find [t-shirt](product)
-    - search for [jeans](product)
-    - do you have [dress](product)
-    - I'm looking for a [laptop](product)
-    - Do you have any [smartphones](product)?
-    - I need a [headphones](product)
-    - Find me a [camera](product)
+    - show me [television](product)
+    - i want to buy [laptop](product)
+    - are there any [headphones](product) available
 
-- intent: add_to_cart
+- intent: product_by_category
   examples: |
-    - add [1](quantity) [shoes](product) to cart
-    - i want to buy [1](quantity) [t-shirt](product)
-    - put [2](quantity) [jeans](product) in my cart
-    - add [3](quantity) [dress](product) to my cart
-    - Add product [sofa](product) to my cart with quantity [2](quantity)
-    - I want to add [1](quantity) [bed](product) to my cart
-    - Please add [2](quantity) [table](product) to my cart
+    - show products in [electronics](category)
+    - what [clothing](category) do you have
+    - display [furniture](category) items
+    - products in [toys](category) category
+    - show me [books](category)
+    - list all [sports](category) products
+    - what do you have in [beauty](category)
+    - [kitchen](category) products
+    - items in [office](category) category
 
-- intent: place_order
+- intent: product_by_brand
   examples: |
-    - Place my order
-    - I want to checkout
-    - Order now
-
-- intent: order_status
-  examples: |
-    - What's the status of order [order123](order_id)
-    - Check order [order456](order_id)
-    - Track order [order789](order_id)
-
-- intent: view_cart
-  examples: |
-    - show my cart
-    - view cart
-    - what's in my cart?
-    - see my cart items
-    - display my cart
-
-- intent: faq
-  examples: |
-    - What is your shipping policy?
-    - Tell me about returns
-    - How do I pay?
-    - I have a question about [shipping](faq_topic)
-    - Can you tell me about [returns](faq_topic)
-
-- intent: nlu_fallback
-  examples: |
-    - Sorry, I didn't understand that.
-    - Can you rephrase your query?
-    - I am not sure how to respond.
-    - I couldn't get that.
-
-- intent: add_to_wishlist
-  examples: |
-    - add [shoes](product) to wishlist
-    - save [laptop](product) to my wishlist
-    - I want to wishlist [dress](product)
-    - put [headphones](product) in my wishlist
-
-- intent: view_wishlist
-  examples: |
-    - show my wishlist
-    - what's in my wishlist?
-    - display wishlist
-    - see my saved items
-
-- intent: remove_from_wishlist
-  examples: |
-    - remove [shoes](product) from wishlist
-    - delete [laptop](product) from my wishlist
-    - take [dress](product) out of wishlist
-
-- intent: get_recommendations
-  examples: |
-    - what do you recommend?
-    - show me product recommendations
-    - give me some suggestions
-    - I need shopping ideas
+    - show products by [Apple](brand)
+    - what [Samsung](brand) products do you have
+    - display [Nike](brand) items
+    - products from [Adidas](brand)
+    - show me [Sony](brand) products
+    - list all [LG](brand) products
+    - what do you have from [Microsoft](brand)
+    - [Dell](brand) products
+    - items from [Lenovo](brand)
