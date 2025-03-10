@@ -1,22 +1,28 @@
 # Dockerfile for the main Rasa server
-FROM python:3.9-slim
+FROM python:3.9-slim 
 
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends build-essential wget && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire project
-COPY . /app
+# Copy only what's needed to run
+COPY models/ /app/models/
+COPY endpoints.yaml /app/
 
-# Expose the port defined in the PORT environment variable, defaulting to 5005
+# Memory optimization settings
+ENV PYTHONUNBUFFERED=1
+ENV MALLOC_ARENA_MAX=2
+
+# Expose the port
 EXPOSE 5005
 
-# Start Rasa server using the PORT env variable (defaults to 5005 if not set)
-CMD ["rasa", "run", "--enable-api", "--cors", "*", "--port", "5005", "--model", "models/20250302-122759-brass-parallel.tar.gz"]
+# Start Rasa server
+CMD ["rasa", "run", "--enable-api", "--cors", "*", "--port", "5005", "--model", "models/latest.tar.gz", "--log-level", "warning"]
