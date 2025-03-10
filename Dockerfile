@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy only what's needed to run
 COPY models/ /app/models/
-COPY endpoints.yaml /app/
+COPY endpoints.yml /app/
 
 # Memory optimization settings
 ENV PYTHONUNBUFFERED=1
@@ -25,4 +25,4 @@ ENV MALLOC_ARENA_MAX=2
 EXPOSE 5005
 
 # Start Rasa server
-CMD ["rasa", "run", "--enable-api", "--cors", "*", "--port", "5005", "--model", "models/latest.tar.gz", "--log-level", "warning"]
+CMD ["rasa", "run", "--enable-api", "--cors", "*", "--port", "5005", "--model", "models/latest.tar.gz"]

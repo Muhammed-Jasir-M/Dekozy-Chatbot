@@ -25,4 +25,4 @@ ENV MALLOC_ARENA_MAX=2
 EXPOSE 5055
 
 # Start the actions server
-CMD ["rasa", "run", "actions", "--port", "5055", "--log-level", "warning"]
+CMD ["rasa", "run", "actions", "--port", "5055"]
