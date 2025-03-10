@@ -1,28 +1,34 @@
-# Dockerfile for the main Rasa server
-FROM python:3.9-slim 
+# Use a lightweight base image
+FROM python:3.9-slim
 
+# Set working directory
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends build-essential wget && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Copy requirements file and install dependencies
 COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy only what's needed to run
+# Copy project files
 COPY models/ /app/models/
+COPY config.yml /app/
+COPY domain.yml /app/
+COPY data/ /app/data/
 COPY endpoints.yml /app/
 
-# Memory optimization settings
+# Optimize memory usage
 ENV PYTHONUNBUFFERED=1
-ENV MALLOC_ARENA_MAX=2
+ENV MALLOC_ARENA_MAX=1
+ENV MAX_HISTORY=2
+ENV DIET_EMBEDDING_DIMENSION=16
 
-# Expose the port
+# Expose port for Rasa server
 EXPOSE 5005
 
-# Start Rasa server
+# Run Rasa server
 CMD ["rasa", "run", "--enable-api", "--cors", "*", "--port", "5005", "--model", "models/latest.tar.gz"]

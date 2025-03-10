@@ -1,28 +1,28 @@
-# Dockerfile for the custom actions server
+# Use a lightweight base image
 FROM python:3.9-slim
 
+# Set working directory
 WORKDIR /app
 
-# Install only what's needed and clean up right away
-RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends build-essential && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy your custom actions code and endpoints configuration
+# Copy custom action files
 COPY actions/ /app/actions/
 COPY endpoints.yml /app/
 
-# Memory optimization settings
+# Optimize memory usage
 ENV PYTHONUNBUFFERED=1
-ENV MALLOC_ARENA_MAX=2
+ENV MALLOC_ARENA_MAX=1
 
-# Expose the port
+# Expose port for custom actions
 EXPOSE 5055
 
-# Start the actions server
+# Run Rasa action server
 CMD ["rasa", "run", "actions", "--port", "5055"]
