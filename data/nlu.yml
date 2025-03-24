@@ -6,28 +6,21 @@ nlu:
     - hey
     - hello
     - hi
-    - hello there
     - good morning
     - good evening
-    - hey there
-    - hi there
-    - greetings
 
 - intent: goodbye
   examples: |
     - bye
     - goodbye
-    - see you around
     - see you later
     - have a nice day
+    - see you around
 
 - intent: affirm
   examples: |
     - yes
-    - y
-    - indeed
     - of course
-    - that sounds good
     - correct
     - sure
     - ok
@@ -36,10 +29,7 @@ nlu:
 - intent: deny
   examples: |
     - no
-    - n
     - never
-    - I don't think so
-    - don't like that
     - no way
     - not really
     - nope
@@ -50,7 +40,6 @@ nlu:
     - thank you
     - thanks a lot
     - thank you very much
-    - appreciate it
     - thanks for your help
 
 - intent: bot_challenge
@@ -59,50 +48,25 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
+    - are you a real person?
 
-- intent: show_categories
+- intent: show_all_categories
   examples: |
-    - show me all categories
+    - show all your categories
     - what categories do you have
     - list all product categories
-    - display categories
-    - what types of products do you sell
+    - display categories & subcategories
     - show product categories
-    - categories please
-    - what are your categories
-    - can I see all categories
-
-- intent: show_featured_categories
-  examples: |
-    - show featured categories
-    - what are your featured categories
-    - display featured categories
-    - what categories are featured
-    - show me your top categories
-    - popular categories
-    - main categories
+    - can I see all your categories
 
 - intent: show_brands
   examples: |
-    - show me all brands
+    - show all your brands
     - what brands do you have
     - list all product brands
     - display brands
-    - what brands do you sell
-    - show product brands
-    - brands please
     - what are your brands
     - can I see all brands
-
-- intent: show_featured_brands
-  examples: |
-    - show featured brands
-    - what are your featured brands
-    - display featured brands
-    - what brands are featured
-    - show me your top brands
-    - popular brands
-    - main brands
 
 - intent: show_products
   examples: |
@@ -116,28 +80,14 @@ nlu:
     - what are your products
     - can I see all products
 
-- intent: show_featured_products
-  examples: |
-    - show featured products
-    - what are your featured products
-    - display featured products
-    - what products are featured
-    - show me your top products
-    - popular products
-    - best selling products
-    - trending products
-
 - intent: product_search
   examples: |
-    - search for [iPhone](product)
-    - find [samsung](product) products
-    - do you have [macbook](product)
-    - looking for [airpods](product)
-    - search [shoes](product)
+    - search for [door](product)
+    - do you have [wooden bed](product)
+    - looking for [](product)
     - find [t-shirt](product)
     - show me [television](product)
     - i want to buy [laptop](product)
-    - are there any [headphones](product) available
 
 - intent: product_by_category
   examples: |
@@ -162,3 +112,11 @@ nlu:
     - what do you have from [Microsoft](brand)
     - [Dell](brand) products
     - items from [Lenovo](brand)
+
+- intent: search_by_price_range
+  examples: |
+    - show products between $[10](min_price) and $[50](max_price)
+    - find items priced from $[20](min_price) to $[100](max_price)
+    - what products cost between $[5](min_price) and $[30](max_price)
+    - products from $[15](min_price:min_price) to $[45](max_price:max_price)
+    - give me items between $[10](min_price) dollars and $[60](max_price) dollars

@@ -1,6 +1,11 @@
 version: "3.1"
 
 rules:
+- rule: Say hello anytime the user greets
+  steps:
+  - intent: greet
+  - action: utter_greet
+
 - rule: Say goodbye anytime the user says goodbye
   steps:
   - intent: goodbye
@@ -21,30 +26,15 @@ rules:
   - intent: show_categories
   - action: action_show_categories
 
-- rule: Show featured categories whenever user asks
-  steps:
-  - intent: show_featured_categories
-  - action: action_show_featured_categories
-
 - rule: Show brands whenever user asks
   steps:
   - intent: show_brands
   - action: action_show_brands
 
-- rule: Show featured brands whenever user asks
-  steps:
-  - intent: show_featured_brands
-  - action: action_show_featured_brands
-
 - rule: Show products whenever user asks
   steps:
   - intent: show_products
   - action: action_show_products
-
-- rule: Show featured products whenever user asks
-  steps:
-  - intent: show_featured_products
-  - action: action_show_featured_products
 
 - rule: Search for products by name
   steps:

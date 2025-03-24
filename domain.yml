@@ -8,51 +8,66 @@ intents:
   - thank
   - bot_challenge
   - show_categories
-  - show_featured_categories
   - show_brands
-  - show_featured_brands
   - show_products
-  - show_featured_products
+
   - product_search
   - product_by_category
   - product_by_brand
+  - search_by_price_range
 
 entities:
   - product
   - category
   - brand
+  - min_price
+  - max_price
 
 slots:
   product:
     type: text
-    influence_conversation: true
+    influence_conversation: false
     mappings:
     - type: from_entity
       entity: product
   
   category:
     type: text
-    influence_conversation: true
+    influence_conversation: false
     mappings:
     - type: from_entity
       entity: category
   
   brand:
     type: text
-    influence_conversation: true
+    influence_conversation: false
     mappings:
     - type: from_entity
       entity: brand
 
+  min_price:
+    type: float
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: min_price
+      
+  max_price:
+    type: float
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: max_price
+
 responses:
   utter_greet:
-  - text: "Hello! Welcome to Aura Kart. How can I help you today?"
+  - text: "Hello! Welcome to Dekozy. How can I help you today?"
   
   utter_goodbye:
   - text: "Goodbye! Have a nice day!"
   
   utter_iamabot:
-  - text: "I am a bot, powered by Aura Kart."
+  - text: "I am a bot, powered by Dekozy."
   
   utter_welcome:
   - text: "You're welcome! Is there anything else I can help you with?"
@@ -62,14 +77,13 @@ responses:
 
 actions:
   - action_show_categories
-  - action_show_featured_categories
   - action_show_brands
-  - action_show_featured_brands
   - action_show_products
-  - action_show_featured_products
+  
   - action_search_product
   - action_show_products_by_category
   - action_show_products_by_brand
+  - action_search_product_by_price_range
 
 session_config:
   session_expiration_time: 60

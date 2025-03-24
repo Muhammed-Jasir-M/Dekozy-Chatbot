@@ -9,7 +9,7 @@ from rasa_sdk.executor import CollectingDispatcher
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-########################## Initialize Firebase ##########################
+######################## Initialize Firebase ########################
 
 def initialize_firebase():
     """Initialize Firebase with either environment variable or local credentials file."""
@@ -40,43 +40,11 @@ def initialize_firebase():
 # Initialize Firebase and get db client
 db = initialize_firebase()
 
+######################## Show Categories ########################
+
 class ActionShowCategories(Action):
     def name(self) -> Text:
         return "action_show_categories"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        try:
-            # Get all categories from Firestore
-            categories_ref = db.collection('Categories')
-            categories = categories_ref.get()
-            
-            if not categories:
-                dispatcher.utter_message(text="We don't have any categories at the moment.")
-                return []
-            
-            # Format response
-            category_list = []
-            for category in categories:
-                cat_data = category.to_dict()
-                category_list.append(f"• {cat_data.get('Name', 'Unnamed category')}")
-            
-            if category_list:
-                message = "Here are all our categories:\n" + "\n".join(category_list)
-                dispatcher.utter_message(text=message)
-            else:
-                dispatcher.utter_message(text="We don't have any categories at the moment.")
-                
-        except Exception as e:
-            logging.error(f"Error fetching categories: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our categories right now.")
-            
-        return []
-
-class ActionShowFeaturedCategories(Action):
-    def name(self) -> Text:
-        return "action_show_featured_categories"
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
@@ -87,14 +55,14 @@ class ActionShowFeaturedCategories(Action):
             categories = categories_ref.get()
             
             if not categories:
-                dispatcher.utter_message(text="We don't have any featured categories at the moment.")
-                return []
+                return dispatcher.utter_message(text="We don't have any featured categories at the moment.")
             
             # Format response
             category_list = []
             for category in categories:
                 cat_data = category.to_dict()
-                category_list.append(f"• {cat_data.get('Name', 'Unnamed category')}")
+                title = cat_data.get('Name', 'Unnamed category')
+                category_list.append(f"• {title}")
             
             if category_list:
                 message = "Here are our featured categories:\n" + "\n".join(category_list)
@@ -103,48 +71,16 @@ class ActionShowFeaturedCategories(Action):
                 dispatcher.utter_message(text="We don't have any featured categories at the moment.")
                 
         except Exception as e:
-            logging.error(f"Error fetching featured categories: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our featured categories right now.")
-            
+            logging.error(f"Error fetching categories: {e}")
+            dispatcher.utter_message(text="Sorry, we're having trouble accessing categories. Please try again later.") 
+
         return []
+
+######################## Show Brands ########################
 
 class ActionShowBrands(Action):
     def name(self) -> Text:
         return "action_show_brands"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        try:
-            # Get all brands from Firestore
-            brands_ref = db.collection('Brands')
-            brands = brands_ref.get()
-            
-            if not brands:
-                dispatcher.utter_message(text="We don't have any brands at the moment.")
-                return []
-            
-            # Format response
-            brand_list = []
-            for brand in brands:
-                brand_data = brand.to_dict()
-                brand_list.append(f"• {brand_data.get('Name', 'Unnamed brand')}")
-            
-            if brand_list:
-                message = "Here are all our brands:\n" + "\n".join(brand_list)
-                dispatcher.utter_message(text=message)
-            else:
-                dispatcher.utter_message(text="We don't have any brands at the moment.")
-                
-        except Exception as e:
-            logging.error(f"Error fetching brands: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our brands right now.")
-            
-        return []
-
-class ActionShowFeaturedBrands(Action):
-    def name(self) -> Text:
-        return "action_show_featured_brands"
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
@@ -157,24 +93,28 @@ class ActionShowFeaturedBrands(Action):
             if not brands:
                 dispatcher.utter_message(text="We don't have any featured brands at the moment.")
                 return []
-            
+    
             # Format response
             brand_list = []
             for brand in brands:
                 brand_data = brand.to_dict()
-                brand_list.append(f"• {brand_data.get('Name', 'Unnamed brand')}")
+                title = brand_data.get('Name', 'Unnamed brand')
+                productCount = brand_data.get('ProductsCount', 0)
+                brand_list.append(f"• {title} ({productCount} products)")
             
             if brand_list:
-                message = "Here are our featured brands:\n" + "\n".join(brand_list)
+                message = "Here are our brands:\n" + "\n".join(brand_list)
                 dispatcher.utter_message(text=message)
             else:
                 dispatcher.utter_message(text="We don't have any featured brands at the moment.")
                 
         except Exception as e:
-            logging.error(f"Error fetching featured brands: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our featured brands right now.")
+            logging.error(f"Error fetching brands: {e}")
+            dispatcher.utter_message(text="Sorry, we're having trouble accessing brands. Please try again later.") 
             
         return []
+
+######################## Show Products ########################
 
 class ActionShowProducts(Action):
     def name(self) -> Text:
@@ -184,49 +124,12 @@ class ActionShowProducts(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         try:
-            # Get all products from Firestore (limit to 10 to prevent overwhelming response)
-            products_ref = db.collection('Products').limit(10)
-            products = products_ref.get()
-            
-            if not products:
-                dispatcher.utter_message(text="We don't have any products at the moment.")
-                return []
-            
-            # Format response
-            product_list = []
-            for product in products:
-                product_data = product.to_dict()
-                title = product_data.get('Title', 'Unnamed product')
-                price = product_data.get('Price', 0)
-                product_list.append(f"• {title} - ${price}")
-            
-            if product_list:
-                message = "Here are some of our products:\n" + "\n".join(product_list)
-                message += "\n\nWould you like to search for specific products by category or brand?"
-                dispatcher.utter_message(text=message)
-            else:
-                dispatcher.utter_message(text="We don't have any products at the moment.")
-                
-        except Exception as e:
-            logging.error(f"Error fetching products: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our products right now.")
-            
-        return []
-
-class ActionShowFeaturedProducts(Action):
-    def name(self) -> Text:
-        return "action_show_featured_products"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        try:
             # Get featured products from Firestore
-            products_ref = db.collection('Products').where('IsFeatured', '==', True).limit(10)
+            products_ref = db.collection('Products').where('IsFeatured', '==', True).limit(6)
             products = products_ref.get()
             
             if not products:
-                dispatcher.utter_message(text="We don't have any featured products at the moment.")
+                dispatcher.utter_message(text="We don't have any products at the moment.")
                 return []
             
             # Format response
@@ -236,23 +139,26 @@ class ActionShowFeaturedProducts(Action):
                 title = product_data.get('Title', 'Unnamed product')
                 price = product_data.get('Price', 0)
                 sale_price = product_data.get('SalePrice', 0)
-                
+                stock = product_data.get('Stock', 0)
+
                 if sale_price > 0:
-                    product_list.append(f"• {title} - ${price} (On sale: ${sale_price})")
+                    product_list.append(f"• {title} - ₹{price} (On sale: ₹{sale_price} - {stock} in stock)")
                 else:
-                    product_list.append(f"• {title} - ${price}")
+                    product_list.append(f"• {title} - ₹{price} - {stock} in stock")
             
             if product_list:
-                message = "Here are our featured products:\n" + "\n".join(product_list)
+                message = "Here are our products:\n" + "\n".join(product_list)
                 dispatcher.utter_message(text=message)
             else:
-                dispatcher.utter_message(text="We don't have any featured products at the moment.")
+                dispatcher.utter_message(text="We don't have any products at the moment.")
                 
         except Exception as e:
-            logging.error(f"Error fetching featured products: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving our featured products right now.")
+            logging.error(f"Error fetching products: {e}")
+            dispatcher.utter_message(text="Sorry, we're having trouble accessing products. Please try again later.") 
             
         return []
+
+######################## Search Product By Name ########################
 
 class ActionSearchProduct(Action):
     def name(self) -> Text:
@@ -266,15 +172,12 @@ class ActionSearchProduct(Action):
             product_name = tracker.get_slot('product')
             
             if not product_name:
-                dispatcher.utter_message(text="I'm not sure what product you're looking for. Could you provide a product name?")
+                dispatcher.utter_message(text="Could you please specify the product you're looking for?")
                 return []
             
-            # Search for products with similar names (case-insensitive search not directly supported in Firestore)
-            # We'll get all products and filter on the client-side for the demo
             products_ref = db.collection('Products')
             products = products_ref.get()
             
-            # Filter products that contain the search term (case-insensitive)
             search_term = product_name.lower()
             matching_products = []
             
@@ -287,7 +190,6 @@ class ActionSearchProduct(Action):
                     stock = product_data.get('Stock', 0)
                     
                     product_info = {
-                        'id': product.id,
                         'title': title,
                         'price': price,
                         'sale_price': sale_price,
@@ -297,21 +199,74 @@ class ActionSearchProduct(Action):
             
             if matching_products:
                 message = f"Here are products matching '{product_name}':\n"
-                for product in matching_products[:5]:  # Limit to 5 results
+                for product in matching_products[:5]:
                     if product['sale_price'] > 0:
-                        message += f"• {product['title']} - ${product['price']} (On sale: ${product['sale_price']}) - {product['stock']} in stock\n"
+                        message += f"• {product['title']} - ₹{product['price']} (On sale: ₹{product['sale_price']}) - {product['stock']} in stock\n"
                     else:
-                        message += f"• {product['title']} - ${product['price']} - {product['stock']} in stock\n"
+                        message += f"• {product['title']} - ₹{product['price']} - {product['stock']} in stock\n"
                 
                 dispatcher.utter_message(text=message)
             else:
-                dispatcher.utter_message(text=f"I couldn't find any products matching '{product_name}'. Would you like to try a different search?")
+                dispatcher.utter_message(text=f"We couldn't find any products matching '{product_name}'. Would you like to try a different search?")
                 
         except Exception as e:
             logging.error(f"Error searching for product: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble searching for products right now.")
+            dispatcher.utter_message(text="Sorry, we're having trouble searching products. Please try again later.") 
             
         return []
+
+######################## Search Product By Price ########################
+
+class ActionSearchProductByPriceRange(Action):
+    def name(self) -> Text:
+        return "action_search_product_by_price_range"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            # Extract price range from slots or entities
+            min_price = tracker.get_slot('min_price') or 0
+            max_price = tracker.get_slot('max_price') or float('inf')
+            
+            # Validate price range
+            try:
+                min_price = float(min_price)
+                max_price = float(max_price)
+            except ValueError:
+                dispatcher.utter_message(text="Please provide valid price range numbers.")
+                return []
+            
+            # Search for products in price range
+            products_ref = db.collection('Products')
+            products = products_ref.get()
+            
+            matching_products = []
+            for product in products:
+                product_data = product.to_dict()
+                price = product_data.get('Price', 0)
+                
+                if min_price <= price <= max_price:
+                    matching_products.append(product_data)
+            
+            if matching_products:
+                message = f"Products between ${min_price} and ${max_price}:\n"
+                message += "\n".join(format_product(product) for product[:5])
+                
+                if len(matching_products) > 5:
+                    message += f"\n... and {len(matching_products) - 5} more products"
+                
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text=f"No products found between ${min_price} and ${max_price}.")
+                
+        except Exception as e:
+            logging.error(f"Error searching products by price: {e}")
+            dispatcher.utter_message(text="Sorry, I'm having trouble searching products by price range.")
+            
+        return []
+
+######################## Show Products By Category ########################
 
 class ActionShowProductsByCategory(Action):
     def name(self) -> Text:
@@ -376,6 +331,8 @@ class ActionShowProductsByCategory(Action):
             
         return []
 
+######################## Show Products By Category ########################
+
 class ActionShowProductsByBrand(Action):
     def name(self) -> Text:
         return "action_show_products_by_brand"
@@ -391,9 +348,6 @@ class ActionShowProductsByBrand(Action):
                 dispatcher.utter_message(text="I'm not sure which brand you're interested in. Could you specify a brand?")
                 return []
             
-            # Get products for this brand
-            # This requires a bit of a different approach since brand is a nested object
-            # We'll need to get all products and filter client-side
             products_ref = db.collection('Products')
             products = products_ref.get()
             
@@ -417,7 +371,7 @@ class ActionShowProductsByBrand(Action):
             
             if matching_products:
                 message = f"Here are products from '{brand_name}':\n"
-                for product in matching_products[:10]:  # Limit to 10 results
+                for product in matching_products[:5]:
                     if product['sale_price'] > 0:
                         message += f"• {product['title']} - ${product['price']} (On sale: ${product['sale_price']})\n"
                     else:
