@@ -55,24 +55,31 @@ class ActionShowCategories(Action):
             categories = categories_ref.get()
             
             if not categories:
-                return dispatcher.utter_message(text="We don't have any featured categories at the moment.")
+                dispatcher.utter_message(text="🏷️ Our category showcase is taking a quick break. Check back soon for exciting updates!")
+                return []
             
             # Format response
             category_list = []
             for category in categories:
                 cat_data = category.to_dict()
-                title = cat_data.get('Name', 'Unnamed category')
-                category_list.append(f"• {title}")
-            
-            if category_list:
-                message = "Here are our featured categories:\n" + "\n".join(category_list)
-                dispatcher.utter_message(text=message)
-            else:
-                dispatcher.utter_message(text="We don't have any featured categories at the moment.")
+                if not cat_data.get('ParentId'):
+                    title = cat_data.get('Name', 'Unnamed Category')
+                    
+                    # Find subcategories for this category
+                    subcategories = db.collection('Categories').where('parentId', '==', category.id).get()
+                    subcategory_names = [sub.to_dict().get('Name', 'Unnamed Subcategory') for sub in subcategories]
+                    
+                    if subcategory_names:
+                        category_list.append(f"🌟 {title} (Subcategories: {', '.join(subcategory_names)})")
+                    else:
+                        category_list.append(f"🌟 {title}")
+  
+            message = "🌈 Discover Our Featured Categories:\n" + "\n".join(category_list)
+            dispatcher.utter_message(text=message)
                 
         except Exception as e:
             logging.error(f"Error fetching categories: {e}")
-            dispatcher.utter_message(text="Sorry, we're having trouble accessing categories. Please try again later.") 
+            dispatcher.utter_message(text="🤖 Oops! Our category navigator is temporarily out of service. Please try again later.") 
 
         return []
 
@@ -91,26 +98,23 @@ class ActionShowBrands(Action):
             brands = brands_ref.get()
             
             if not brands:
-                dispatcher.utter_message(text="We don't have any featured brands at the moment.")
+                dispatcher.utter_message(text="🏢 Our brand showcase is taking a short break. Exciting brands coming soon!")
                 return []
     
             # Format response
             brand_list = []
             for brand in brands:
                 brand_data = brand.to_dict()
-                title = brand_data.get('Name', 'Unnamed brand')
+                title = brand_data.get('Name', 'Unnamed Brand')
                 productCount = brand_data.get('ProductsCount', 0)
-                brand_list.append(f"• {title} ({productCount} products)")
+                brand_list.append(f"🏷️ {title} (Available Products: {productCount})")
             
-            if brand_list:
-                message = "Here are our brands:\n" + "\n".join(brand_list)
-                dispatcher.utter_message(text=message)
-            else:
-                dispatcher.utter_message(text="We don't have any featured brands at the moment.")
+            message = "🌟 Featured Brands We Love:\n" + "\n".join(brand_list)
+            dispatcher.utter_message(text=message)
                 
         except Exception as e:
             logging.error(f"Error fetching brands: {e}")
-            dispatcher.utter_message(text="Sorry, we're having trouble accessing brands. Please try again later.") 
+            dispatcher.utter_message(text="🤖 Sorry, our brand explorer is currently out of service. We'll be back soon!") 
             
         return []
 
@@ -129,32 +133,29 @@ class ActionShowProducts(Action):
             products = products_ref.get()
             
             if not products:
-                dispatcher.utter_message(text="We don't have any products at the moment.")
+                dispatcher.utter_message(text="🛍️ Our product shelves are looking a bit empty today. New arrivals coming soon!")
                 return []
             
             # Format response
             product_list = []
             for product in products:
                 product_data = product.to_dict()
-                title = product_data.get('Title', 'Unnamed product')
+                title = product_data.get('Title', 'Unnamed Product')
                 price = product_data.get('Price', 0)
                 sale_price = product_data.get('SalePrice', 0)
                 stock = product_data.get('Stock', 0)
 
-                if sale_price > 0:
-                    product_list.append(f"• {title} - ₹{price} (On sale: ₹{sale_price} - {stock} in stock)")
+                if sale_price > 0 and sale_price < price:
+                    product_list.append(f"🔥 {title}\n   Regular Price: ₹{price}\n   🏷️ Special Offer: ₹{sale_price}\n   📦 {stock} left in stock")
                 else:
-                    product_list.append(f"• {title} - ₹{price} - {stock} in stock")
+                    product_list.append(f"✨ {title}\n   Price: ₹{price}\n   📦 {stock} left in stock")
             
-            if product_list:
-                message = "Here are our products:\n" + "\n".join(product_list)
-                dispatcher.utter_message(text=message)
-            else:
-                dispatcher.utter_message(text="We don't have any products at the moment.")
+            message = "🌈 Our Handpicked Featured Products:\n\n" + "\n\n".join(product_list)
+            dispatcher.utter_message(text=message)
                 
         except Exception as e:
             logging.error(f"Error fetching products: {e}")
-            dispatcher.utter_message(text="Sorry, we're having trouble accessing products. Please try again later.") 
+            dispatcher.utter_message(text="🤖 Our product showcase is momentarily unavailable. We apologize for the inconvenience!") 
             
         return []
 
@@ -172,7 +173,7 @@ class ActionSearchProduct(Action):
             product_name = tracker.get_slot('product')
             
             if not product_name:
-                dispatcher.utter_message(text="Could you please specify the product you're looking for?")
+                dispatcher.utter_message(text="🔍 What product are you hunting for today? Let me help you find it!")
                 return []
             
             products_ref = db.collection('Products')
@@ -198,24 +199,29 @@ class ActionSearchProduct(Action):
                     matching_products.append(product_info)
             
             if matching_products:
-                message = f"Here are products matching '{product_name}':\n"
+                message = f"🔍 Results for '{product_name}':\n\n"
                 for product in matching_products[:5]:
-                    if product['sale_price'] > 0:
-                        message += f"• {product['title']} - ₹{product['price']} (On sale: ₹{product['sale_price']}) - {product['stock']} in stock\n"
+                    if product['sale_price'] > 0 and product['sale_price'] < product['price']:
+                        message += (f"🌟 {product['title']}\n"
+                                    f"   Regular Price: ₹{product['price']}\n"
+                                    f"   🏷️ Special Offer: ₹{product['sale_price']}\n"
+                                    f"   📦 {product['stock']} available\n\n")
                     else:
-                        message += f"• {product['title']} - ₹{product['price']} - {product['stock']} in stock\n"
+                        message += (f"✨ {product['title']}\n"
+                                    f"   Price: ₹{product['price']}\n"
+                                    f"   📦 {product['stock']} available\n\n")
                 
                 dispatcher.utter_message(text=message)
             else:
-                dispatcher.utter_message(text=f"We couldn't find any products matching '{product_name}'. Would you like to try a different search?")
+                dispatcher.utter_message(text=f"🤷‍♀️ No matches found for '{product_name}'. Want to try a different search?")
                 
         except Exception as e:
             logging.error(f"Error searching for product: {e}")
-            dispatcher.utter_message(text="Sorry, we're having trouble searching products. Please try again later.") 
+            dispatcher.utter_message(text="🤖 Our search magic is temporarily on the fritz. Please try again later!") 
             
         return []
 
-######################## Search Product By Price ########################
+######################## Search Product By Price Range ########################
 
 class ActionSearchProductByPriceRange(Action):
     def name(self) -> Text:
@@ -234,7 +240,7 @@ class ActionSearchProductByPriceRange(Action):
                 min_price = float(min_price)
                 max_price = float(max_price)
             except ValueError:
-                dispatcher.utter_message(text="Please provide valid price range numbers.")
+                dispatcher.utter_message(text="🚫 Oops! Please provide valid price range numbers.")
                 return []
             
             # Search for products in price range
@@ -250,19 +256,33 @@ class ActionSearchProductByPriceRange(Action):
                     matching_products.append(product_data)
             
             if matching_products:
-                message = f"Products between ${min_price} and ${max_price}:\n"
-                message += "\n".join(format_product(product) for product[:5])
+                message = f"🔍 Products between ₹{min_price} and ₹{max_price}:\n\n"
+                for product in matching_products[:5]:
+                    title = product.get('Title', 'Unnamed Product')
+                    price = product.get('Price', 0)
+                    sale_price = product.get('SalePrice', 0)
+                    stock = product.get('Stock', 0)
+
+                    if sale_price > 0 and sale_price < price:
+                        message += (f"🌟 {title}\n"
+                                    f"   Regular Price: ₹{price}\n"
+                                    f"   🏷️ Special Offer: ₹{sale_price}\n"
+                                    f"   📦 {stock} available\n\n")
+                    else:
+                        message += (f"✨ {title}\n"
+                                    f"   Price: ₹{price}\n"
+                                    f"   📦 {stock} available\n\n")
                 
                 if len(matching_products) > 5:
-                    message += f"\n... and {len(matching_products) - 5} more products"
+                    message += f"... and {len(matching_products) - 5} more products"
                 
                 dispatcher.utter_message(text=message)
             else:
-                dispatcher.utter_message(text=f"No products found between ${min_price} and ${max_price}.")
+                dispatcher.utter_message(text=f"🤷‍♀️ No products found between ₹{min_price} and ₹{max_price}.")
                 
         except Exception as e:
             logging.error(f"Error searching products by price: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble searching products by price range.")
+            dispatcher.utter_message(text="🤖 Sorry, I'm having trouble searching products by price range.") 
             
         return []
 
@@ -280,7 +300,7 @@ class ActionShowProductsByCategory(Action):
             category_name = tracker.get_slot('category')
             
             if not category_name:
-                dispatcher.utter_message(text="I'm not sure which category you're interested in. Could you specify a category?")
+                dispatcher.utter_message(text="🤔 Which category are you interested in? Let me help you explore!")
                 return []
             
             # First, find the category ID by name
@@ -295,7 +315,7 @@ class ActionShowProductsByCategory(Action):
                     break
             
             if not category_id:
-                dispatcher.utter_message(text=f"I couldn't find a category named '{category_name}'. Would you like to see all our categories?")
+                dispatcher.utter_message(text=f"🤷‍♀️ We couldn't find a category named '{category_name}'. Would you like to see all our categories?")
                 return []
             
             # Now get products in this category
@@ -303,7 +323,7 @@ class ActionShowProductsByCategory(Action):
             products = products_ref.get()
             
             if not products:
-                dispatcher.utter_message(text=f"We don't have any products in the '{category_name}' category at the moment.")
+                dispatcher.utter_message(text=f"🏷️ We don't have any products in the '{category_name}' category at the moment.")
                 return []
             
             # Format response
@@ -313,25 +333,23 @@ class ActionShowProductsByCategory(Action):
                 title = product_data.get('Title', 'Unnamed product')
                 price = product_data.get('Price', 0)
                 sale_price = product_data.get('SalePrice', 0)
+                stock = product_data.get('Stock', 0)
                 
-                if sale_price > 0:
-                    product_list.append(f"• {title} - ${price} (On sale: ${sale_price})")
+                if sale_price > 0 and sale_price < price:
+                    product_list.append(f"🌟 {title}\n   Regular Price: ₹{price}\n   🏷️ Special Offer: ₹{sale_price}\n   📦 {stock} available")
                 else:
-                    product_list.append(f"• {title} - ${price}")
+                    product_list.append(f"✨ {title}\n   Price: ₹{price}\n   📦 {stock} available")
             
-            if product_list:
-                message = f"Here are products in the '{category_name}' category:\n" + "\n".join(product_list)
-                dispatcher.utter_message(text=message)
-            else:
-                dispatcher.utter_message(text=f"We don't have any products in the '{category_name}' category at the moment.")
+            message = f"🏷️ Products in the '{category_name}' Category:\n\n" + "\n\n".join(product_list)
+            dispatcher.utter_message(text=message)
                 
         except Exception as e:
             logging.error(f"Error fetching products by category: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving products by category right now.")
+            dispatcher.utter_message(text="🤖 Sorry, I'm having trouble retrieving products by category right now.") 
             
         return []
 
-######################## Show Products By Category ########################
+######################## Show Products By Brand ########################
 
 class ActionShowProductsByBrand(Action):
     def name(self) -> Text:
@@ -345,7 +363,7 @@ class ActionShowProductsByBrand(Action):
             brand_name = tracker.get_slot('brand')
             
             if not brand_name:
-                dispatcher.utter_message(text="I'm not sure which brand you're interested in. Could you specify a brand?")
+                dispatcher.utter_message(text="🤔 Which brand are you curious about? Let me help you explore!")
                 return []
             
             products_ref = db.collection('Products')
@@ -361,28 +379,182 @@ class ActionShowProductsByBrand(Action):
                     title = product_data.get('Title', 'Unnamed product')
                     price = product_data.get('Price', 0)
                     sale_price = product_data.get('SalePrice', 0)
+                    stock = product_data.get('Stock', 0)
                     
                     product_info = {
                         'title': title,
                         'price': price,
-                        'sale_price': sale_price
+                        'sale_price': sale_price,
+                        'stock': stock
                     }
                     matching_products.append(product_info)
             
             if matching_products:
-                message = f"Here are products from '{brand_name}':\n"
+                message = f"🏷️ Products from '{brand_name}':\n\n"
                 for product in matching_products[:5]:
-                    if product['sale_price'] > 0:
-                        message += f"• {product['title']} - ${product['price']} (On sale: ${product['sale_price']})\n"
+                    if product['sale_price'] > 0 and product['sale_price'] < product['price']:
+                        message += (f"🌟 {product['title']}\n"
+                                    f"   Regular Price: ₹{product['price']}\n"
+                                    f"   🏷️ Special Offer: ₹{product['sale_price']}\n"
+                                    f"   📦 {product['stock']} available\n\n")
                     else:
-                        message += f"• {product['title']} - ${product['price']}\n"
+                        message += (f"✨ {product['title']}\n"
+                                    f"   Price: ₹{product['price']}\n"
+                                    f"   📦 {product['stock']} available\n\n")
                 
                 dispatcher.utter_message(text=message)
             else:
-                dispatcher.utter_message(text=f"I couldn't find any products from the brand '{brand_name}'. Would you like to see all our brands?")
+                dispatcher.utter_message(text=f"🤷‍♀️ No products found from the brand '{brand_name}'. Would you like to see all our brands?")
                 
         except Exception as e:
             logging.error(f"Error fetching products by brand: {e}")
-            dispatcher.utter_message(text="Sorry, I'm having trouble retrieving products by brand right now.")
+            dispatcher.utter_message(text="🤖 Sorry, I'm having trouble retrieving products by brand right now.") 
             
         return []
+
+######################## Order Status Tracking ########################
+
+class ActionTrackOrder(Action):
+    def name(self) -> Text:
+        return "action_track_order"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            order_id = tracker.get_slot('order_id')
+            
+            if not order_id:
+                dispatcher.utter_message(text="🔍 Please provide a valid order ID to track your purchase.")
+                return []
+            
+            order_ref = db.collection('Orders').document(order_id)
+            order = order_ref.get()
+            
+            if not order.exists:
+                dispatcher.utter_message(text=f"🤷‍♀️ No order found with ID {order_id}.")
+                return []
+            
+            order_data = order.to_dict()
+            status = order_data.get('status', 'N/A')
+            estimated_delivery = order_data.get('deliveryDate', 'N/A')
+            items = order_data.get('items', [])
+            total = order_data.get('totalAmount', 0)
+
+            status_messages = {
+                'OrderStatus.processing': '🔄 Your order is being prepared',
+                'OrderStatus.shipped': '🚚 Your order is on its way',
+                'OrderStatus.pending': '⏳ Your order is pending',
+                'OrderStatus.delivered': '✅ Your order has been successfully delivered',
+                'OrderStatus.cancelled': '❌ Your order has been cancelled'
+            }
+            
+            friendly_status = status_messages.get(status, status)
+            
+            message = f"""
+                🧾 Order Status Details:
+                - 🏷️ Order ID: {order_id}
+                - 📊 Current Status: {friendly_status}
+                - 📅 Estimated Delivery: {estimated_delivery}
+                - 📦 Total Items: {len(items)}
+                - 💰 Total Amount: ₹{total}
+            """
+            
+            dispatcher.utter_message(text=message)
+            
+        except Exception as e:
+            logging.error(f"Error tracking order: {e}")
+            dispatcher.utter_message(text="🤖 Sorry, we couldn't retrieve order details at the moment.") 
+        
+        return []
+
+######################## User Profile ########################
+
+class ActionUserProfile(Action):
+    def name(self) -> Text:
+        return "action_get_user_profile"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            user_id = tracker.get_slot('user_id')
+            
+            if not user_id:
+                dispatcher.utter_message(text="🔍 Please provide a valid user ID.")
+                return []
+            
+            user_ref = db.collection('Users').document(user_id)
+            user = user_ref.get()
+            
+            if not user.exists:
+                dispatcher.utter_message(text=f"🤷‍♀️ No user found with ID {user_id}.")
+                return []
+            
+            user_data = user.to_dict()
+            message = f"""
+                👤 User Profile:
+                - 🏷️ First Name: {user_data.get('FirstName', 'N/A')}
+                - 📛 Last Name: {user_data.get('LastName', 'N/A')}
+                - 🆔 Username: {user_data.get('Username', 'N/A')}
+                - 📧 Email: {user_data.get('Email', 'N/A')}
+                - 📞 Phone: {user_data.get('Phone', 'N/A')}
+                - 📅 Joined: {user_data.get('CreatedAt', 'N/A')}
+            """
+            
+            dispatcher.utter_message(text=message)
+            
+        except Exception as e:
+            logging.error(f"Error retrieving user profile: {e}")
+            dispatcher.utter_message(text="🤖 Sorry, we couldn't retrieve user profile details.") 
+        
+        return []
+
+######################## Product Recommendations ########################
+
+class ActionProductRecommendations(Action):
+    def name(self) -> Text:
+        return "action_product_recommendations"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            featured_products = (db.collection('Products')
+                .where('IsFeatured', '==', True)
+                .where('Stock', '>', 0)
+                .limit(5)
+                .get())
+            
+            recommendations = []
+            for product in featured_products:
+                product_data = product.to_dict()
+                title = product_data.get('Title', 'Unnamed Product')
+                price = product_data.get('Price', 0)
+                sale_price = product_data.get('SalePrice', price)
+                stock = product_data.get('Stock', 0)
+                
+                if sale_price > 0 and sale_price < price:
+                    recommendation = (f"🌟 {title}\n"
+                                      f"   Regular Price: ₹{price}\n"
+                                      f"   🏷️ Special Offer: ₹{sale_price}\n"
+                                      f"   📦 {stock} available")
+                else:
+                    recommendation = (f"✨ {title}\n"
+                                      f"   Price: ₹{price}\n"
+                                      f"   📦 {stock} available")
+                recommendations.append(recommendation)
+            
+            if recommendations:
+                message = "🌈 Recommended Products Just for You:\n\n" + "\n\n".join(recommendations)
+                dispatcher.utter_message(text=message)
+            else:
+                dispatcher.utter_message(text="🤷‍♀️ No recommendations available at the moment.")
+            
+        except Exception as e:
+            logging.error(f"Error generating recommendations: {e}")
+            dispatcher.utter_message(text="🤖 Sorry, we couldn't generate product recommendations right now.") 
+        
+        return []
+
+########################.####################.########################

@@ -1,36 +1,10 @@
 version: "3.1"
 
 stories:
-- story: greet and show categories
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: show_categories
-  - action: action_show_categories
 
-- story: greet and show brands
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: show_brands
-  - action: action_show_brands
 
-- story: greet and show products
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: show_products
-  - action: action_show_products
 
-- story: goodbye
-  steps:
-  - intent: goodbye
-  - action: utter_goodbye
 
-- story: thank
-  steps:
-  - intent: thank
-  - action: utter_welcome
 
 - story: bot challenge
   steps:

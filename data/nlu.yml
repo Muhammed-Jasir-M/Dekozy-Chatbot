@@ -8,6 +8,8 @@ nlu:
     - hi
     - good morning
     - good evening
+    - howdy
+    - hi there
 
 - intent: goodbye
   examples: |
@@ -16,6 +18,8 @@ nlu:
     - see you later
     - have a nice day
     - see you around
+    - take care
+    - catch you later
 
 - intent: affirm
   examples: |
@@ -25,6 +29,8 @@ nlu:
     - sure
     - ok
     - okay
+    - definitely
+    - absolutely
 
 - intent: deny
   examples: |
@@ -33,6 +39,8 @@ nlu:
     - no way
     - not really
     - nope
+    - absolutely not
+    - I don't think so
 
 - intent: thank
   examples: |
@@ -41,6 +49,8 @@ nlu:
     - thanks a lot
     - thank you very much
     - thanks for your help
+    - much appreciated
+    - I appreciate it
 
 - intent: bot_challenge
   examples: |
@@ -49,8 +59,9 @@ nlu:
     - am I talking to a bot?
     - am I talking to a human?
     - are you a real person?
+    - is this a chatbot?
 
-- intent: show_all_categories
+- intent: show_categories
   examples: |
     - show all your categories
     - what categories do you have
@@ -58,6 +69,7 @@ nlu:
     - display categories & subcategories
     - show product categories
     - can I see all your categories
+    - what types of products do you sell?
 
 - intent: show_brands
   examples: |
@@ -67,6 +79,7 @@ nlu:
     - display brands
     - what are your brands
     - can I see all brands
+    - which brands are available?
 
 - intent: show_products
   examples: |
@@ -79,27 +92,32 @@ nlu:
     - products please
     - what are your products
     - can I see all products
+    - what items are available?
 
 - intent: product_search
   examples: |
     - search for [door](product)
     - do you have [wooden bed](product)
-    - looking for [](product)
-    - find [t-shirt](product)
+    - looking for [table](product)
+    - find [washing machine](product)
     - show me [television](product)
-    - i want to buy [laptop](product)
+    - I want to buy [Refrigerator](product)
+    - do you sell [microwave](product)?
+    - can I get a [sofa](product)?
 
 - intent: product_by_category
   examples: |
     - show products in [electronics](category)
-    - what [clothing](category) do you have
+    - what [decoration](category) do you have
     - display [furniture](category) items
-    - products in [toys](category) category
-    - show me [books](category)
-    - list all [sports](category) products
-    - what do you have in [beauty](category)
-    - [kitchen](category) products
-    - items in [office](category) category
+    - products in [home appliances](category) category
+    - show me [lights](category)
+    - list all [sofa](category) products
+    - what do you have in [washing machines](category)
+    - [Table](category) products
+    - items in [Bed](category) category
+    - what [kitchen appliances](category) are available?
+    - show [office furniture](category)
 
 - intent: product_by_brand
   examples: |
@@ -112,6 +130,8 @@ nlu:
     - what do you have from [Microsoft](brand)
     - [Dell](brand) products
     - items from [Lenovo](brand)
+    - do you have [HP](brand) products?
+    - show [Bosch](brand) items
 
 - intent: search_by_price_range
   examples: |
@@ -120,3 +140,42 @@ nlu:
     - what products cost between $[5](min_price) and $[30](max_price)
     - products from $[15](min_price:min_price) to $[45](max_price:max_price)
     - give me items between $[10](min_price) dollars and $[60](max_price) dollars
+    - show me products under $[100](max_price)
+    - what can I buy for $[50](max_price)?
+    - items priced above $[200](min_price)
+
+- intent: order_status
+  examples: |
+    - check order status
+    - what is the status of my order
+    - track my order
+    - where is my order
+    - order number [12345](order_id)
+    - I want to know about order [67890](order_id)
+    - check status for order [54321](order_id)
+
+- intent: user_profile
+  examples: |
+    - show my profile
+    - get my user details
+    - user information
+    - profile for user [user123](user_id)
+    - retrieve profile of [user456](user_id)
+
+- intent: product_recommendation
+  examples: |
+    - recommend products
+    - what should I buy
+    - give me product suggestions
+    - suggest products based on my history
+    - recommend items for me
+
+- intent: customer_support
+  examples: |
+    - I need help
+    - contact support
+    - speak to customer service
+    - how can I get support
+    - I have a problem
+    - need assistance
+    

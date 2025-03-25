@@ -10,11 +10,14 @@ intents:
   - show_categories
   - show_brands
   - show_products
-
   - product_search
   - product_by_category
   - product_by_brand
   - search_by_price_range
+  - order_status
+  - user_profile
+  - product_recommendation
+  - customer_support
 
 entities:
   - product
@@ -22,69 +25,96 @@ entities:
   - brand
   - min_price
   - max_price
+  - order_id
+  - user_id
 
 slots:
   product:
     type: text
     influence_conversation: false
     mappings:
-    - type: from_entity
-      entity: product
+      - type: from_entity
+        entity: product
   
   category:
     type: text
     influence_conversation: false
     mappings:
-    - type: from_entity
-      entity: category
+      - type: from_entity
+        entity: category
   
   brand:
     type: text
     influence_conversation: false
     mappings:
-    - type: from_entity
-      entity: brand
+      - type: from_entity
+        entity: brand
 
   min_price:
     type: float
     influence_conversation: false
     mappings:
-    - type: from_entity
-      entity: min_price
+      - type: from_entity
+        entity: min_price
       
   max_price:
     type: float
     influence_conversation: false
     mappings:
-    - type: from_entity
-      entity: max_price
+      - type: from_entity
+        entity: max_price
+
+  order_id:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: order_id
+
+  user_id:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: user_id
 
 responses:
   utter_greet:
-  - text: "Hello! Welcome to Dekozy. How can I help you today?"
+    - text: "Hello! Welcome to Dekozy. How can I help you today?"
+    - text: "Hi there! I'm your Dekozy shopping assistant. What can I do for you?"
   
   utter_goodbye:
-  - text: "Goodbye! Have a nice day!"
+    - text: "Take care! We hope to see you again soon."
+    - text: "Goodbye! Have a nice day and thank you for shopping with Dekozy."
   
   utter_iamabot:
-  - text: "I am a bot, powered by Dekozy."
-  
+    - text: "I am an AI assistant powered by Dekozy, here to help you with your shopping needs."
+    - text: "I'm a smart chatbot designed to make your shopping experience smooth and enjoyable."
+
   utter_welcome:
-  - text: "You're welcome! Is there anything else I can help you with?"
-  
+    - text: "You're welcome! Is there anything else I can help you with today?"
+    - text: "Happy to help! Do you need assistance with anything else?"
+
   utter_fallback:
-  - text: "I'm sorry, I didn't understand that. Can you please rephrase?"
+    - text: "I'm sorry, I didn't quite understand that. Could you please rephrase or be more specific?"
+    - text: "I'm having trouble understanding your request. Could you clarify?"
+
+  utter_customer_support:
+    - text: "For immediate assistance, please contact our customer support:\nEmail: support@dekozy.com\nPhone: +91 1234567890\nAvailable: 9 AM - 6 PM, Monday to Saturday"
+    - text: "Our customer support team is ready to help you:\nLive Chat: www.dekozy.com/support\nEmail: support@dekozy.com\nHelpline: +91 1234567890"
 
 actions:
   - action_show_categories
   - action_show_brands
   - action_show_products
-  
   - action_search_product
   - action_show_products_by_category
   - action_show_products_by_brand
   - action_search_product_by_price_range
+  - action_track_order
+  - action_get_user_profile
+  - action_product_recommendations
 
 session_config:
-  session_expiration_time: 60
+  session_expiration_time: 300
   carry_over_slots_to_new_session: true

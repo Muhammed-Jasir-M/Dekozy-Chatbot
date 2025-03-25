@@ -41,6 +41,11 @@ rules:
   - intent: product_search
   - action: action_search_product
 
+- rule: Search for products by price
+  steps:
+  - intent: search_by_price_range
+  - action: action_search_product_by_price_range
+
 - rule: Show products by category
   steps:
   - intent: product_by_category
@@ -50,3 +55,24 @@ rules:
   steps:
   - intent: product_by_brand
   - action: action_show_products_by_brand
+
+- rule: Track order status
+  steps:
+  - intent: order_status
+  - action: action_track_order
+
+- rule: Get user profile
+  steps:
+  - intent: user_profile
+  - action: action_get_user_profile
+
+- rule: Product recommendations
+  steps:
+  - intent: product_recommendation
+  - action: action_product_recommendations
+
+- rule: Customer support
+  steps:
+  - intent: customer_support
+  - action: utter_customer_support
+  
